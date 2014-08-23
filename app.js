@@ -5,11 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var gp = require('./Gulpfile.js');
+var gulp = require('./Gulpfile.js');
 
-gp.start('lint-scripts');
-gp.start('build-scripts');
-gp.start('watch');
+gulp.start('dev');
 
 var routes = {
     index: require('./routes/index'),
