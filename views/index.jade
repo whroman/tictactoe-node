@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    #page
+    h1= title
+    p Welcome to #{title}
+
+    h1 tic tac toe
+    #board
+    .clearfix
+    #info
+        .player.one
+            .tile.faux
+            .name player one
+        .player.two
+            .tile.faux
+            .name player two
+        .player.new-game
+            .button.tile.faux
+                div !
+            .name new game
+    #overlay-bg
+    #message
+        .title
+        .new-game
+            .button.tile.faux
+                div !
+            .text new game
+
+    script#tile-template(type='text/template')
+        <div id='tile<%-x%><%-y%>' class="tile<%- x == 0 ? ' nth-tile' : "" %>" ></div>
