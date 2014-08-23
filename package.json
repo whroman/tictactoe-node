@@ -25,6 +25,9 @@
     "gulp-uglifyjs": "0.4.2",
     "gulp-util": "^3.0.0",
     "jshint-stylish": "^0.4.0",
-    "map-stream": "^0.1.0"
+    "map-stream": "^0.1.0",
+    "mongodb": "^1.4.8",
+    "monk": "^0.9.0",
+    "socket.io": "^1.0.6"
   }
 }

@@ -5,15 +5,25 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var gulp = require('./Gulpfile.js');
+var mongo = require('mongodb');
+var monk = require('monk');
+var db = monk('localhost:27017/tictactoe');
 
-gulp.start('dev');
+var gulp = require('./Gulpfile.js');
 
 var routes = {
     index: require('./routes/index'),
 }
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+io.on('connection', function(socket) {
+    console.log('a user has connected');
+})
+
+gulp.start('dev');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -1,4 +1,5 @@
 $(function() {
+
     var Tile = Backbone.Model.extend({
         defaults: function() {
             var order = Tiles.nextId(),
