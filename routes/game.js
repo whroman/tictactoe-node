@@ -1,11 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-router.get('/:game', getGame);
+router.get('/:game', routeGame);
 
-function getGame(req, res) {
+function routeGame(req, res) {
     console.log(req.params)
-    res.render('root', { title: req.params.game });
+    if (req.params.game.length === 10) {
+        res.render('root', { title: req.params.game });
+    } else {
+        res.redirect('/');
+
+    }
 }
 
 module.exports = router;

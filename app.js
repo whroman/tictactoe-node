@@ -14,8 +14,11 @@ var gulp = require('./Gulpfile.js');
 var routes = {
     root: require('./routes/root'),
     game: require('./routes/game'),
-    root: require('./routes/root'),
 }
+
+var api = {
+    game: require('./api/game')
+} 
 
 var app = express();
 var http = require('http').Server(app);
@@ -56,9 +59,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
-// app.use(lessMiddleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(ex.uglify.middleware(ex.options.uglify));
+
 
 app.use('/socket.io', function(req, res) {
     console.log('socket connected');

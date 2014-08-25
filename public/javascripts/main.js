@@ -51,14 +51,19 @@ $(function() {
                 timeStamp: timeStamp
             };
         },
-
+        sync: function() {
+            return false;
+        },
         x : "", 
         y : "",
     });
 
     var AllTiles = Backbone.Collection.extend({
         model: Tile,
-        localStorage: new Backbone.LocalStorage("tictactoe"),
+        sync: function() {
+            return false;
+        },
+        comparator: "id",
         numOfClicks: 0,
         startPlayer: 0,
         boardSize: null,
@@ -76,6 +81,7 @@ $(function() {
                         y: yy, 
                     });
                     tile.save();
+
                 }
             }
         },
@@ -131,16 +137,20 @@ $(function() {
             return this.where(whereSelected);
         },
         checkIfWin: function(tile) {
-            var playerTiles = Tiles.selectedTiles(tile),
-                possibleWins = Tiles.possibleWins,
-                playerTileCoords = [],
-                i = 0;
+            Tiles.saveGame();
+
+            var playerTiles = Tiles.selectedTiles(tile);
+            var possibleWins = Tiles.possibleWins;
+            var playerTileCoords = [];
+            var i = 0;
+
             for (i; i < playerTiles.length; i++) {
                 playerTileCoords.push({
                     x: playerTiles[i].get("x"),
                     y: playerTiles[i].get("y")                  
                 });
             }
+
             for (i = 0; i < possibleWins.length; i++) {
                 var count = 0,
                     numSelectedTiles = Tiles.where({"hasBeenSelected": true}).length;
@@ -154,15 +164,25 @@ $(function() {
                 }
                 if (count == Tiles.boardSize) {
                     tile.trigger("win", tile);
+                    return true;
                 } else if (numSelectedTiles == Tiles.boardSize * Tiles.boardSize) {
                     tile.trigger("tie");
+                    return true;
                 }
             }
+
+            return false;
         },
         endOfGame: function() {
             Tiles.allowClicks = false;
         },
-        comparator: "id",
+        saveGame: function() {
+            var gameState = {
+                collection: JSON.stringify(this.models),
+                room: window.location.pathname
+            }
+            socket.emit('game save', gameState);
+        },
     });
 
     var Tiles = new AllTiles();
@@ -179,16 +199,19 @@ $(function() {
         render: function() {
             return this.template(this.model.toJSON());
         },
+        // Update Model
         tileClick: function() {
             if (this.model.get("hasBeenSelected") === false &&  Tiles.allowClicks === true) {
                 var player = Tiles.numOfClicks % 2;
-                this.model.save({
+                var tile = {
                     selectedBy: player,
                     hasBeenSelected: true
-                });
+                }
+                this.model.save(tile);
                 Tiles.numOfClicks++;
             }
         },
+        // Update View
         markTile: function() {
             var player = Tiles.numOfClicks % 2;
             if (player === 0) {
@@ -214,8 +237,6 @@ $(function() {
             this.listenTo(Tiles, "win", this.win);
             this.listenTo(Tiles, "tie", this.tie);
             this.listenTo(Tiles, "reset", this.render);
-            this.listenTo(Tiles, "playerOneTurn", this.hello);
-            this.listenTo(Tiles, "playerTwoTurn", this.hello);
 
             $("#overlay-bg").on("click", function() {
                 $(this).removeClass("show");
@@ -228,7 +249,7 @@ $(function() {
                 Tiles.allowClicks = true;
             });
 
-            Tiles.fetch({});
+            // Tiles.fetch({});
 
             this.render([], options.size);
         },
@@ -241,8 +262,7 @@ $(function() {
 
             if (Tiles.length === 0) {
                 Tiles.newGame(size);
-                this.$el.addClass("one");
-                this.playerOne.addClass("one");
+                this.renderP1Turn();
             } else {
                 this.persistCollection();
             }
@@ -250,34 +270,38 @@ $(function() {
             _.each(Tiles.models, this.addTile, this);
         },
         persistCollection: function() {
-            var clickedTiles = Tiles.where({hasBeenSelected: true});
-            Tiles.numOfClicks = clickedTiles.length;
-            var lastTile = _.max(
-                Tiles.where({hasBeenSelected:true}), 
-                function(tile) {
-                    return tile.get("timeStamp");
+            var selectedTiles = Tiles.where({hasBeenSelected: true});
+            Tiles.numOfClicks = selectedTiles.length;
+            var lastTile = _.max(selectedTiles, function(tile) {
+                return tile.get("timeStamp");
             });
             if (Tiles.numOfClicks > 0) {            
-                Tiles.numOfClicks += lastTile.get("selectedBy");
-                if (Tiles.numOfClicks % 2 === 0) {
-                    this.$el.addClass("one");
-                    this.playerOne.addClass("one");
-                        } else {
-                    this.$el.addClass("two");
-                    this.playerTwo.addClass("two");
+                if (Tiles.checkIfWin(lastTile) === false) {
+                    Tiles.numOfClicks += lastTile.get("selectedBy");
+                    if (Tiles.numOfClicks % 2 === 0) {
+                        this.renderP1Turn();
+                    } else {
+                        this.renderP2Turn();
+                    }
                 }
-                Tiles.checkIfWin(lastTile);
             } else {
-                this.$el.addClass("one");
-                this.playerOne.addClass("one");
+                this.renderP1Turn();
             }
             return lastTile;
+        },
+        renderP1Turn: function() {
+            this.$el.addClass("one");
+            this.playerOne.addClass("one");
+        },
+        renderP2Turn: function() {
+            this.$el.addClass("two");
+            this.playerTwo.addClass("two");            
         },
         addTile: function(tile) {
             var elString = "#tile" + tile.get("x") + tile.get("y");
             var newTileView = new TileView({
-                    model: tile,
-                });
+                model: tile,
+            });
             this.$el.append(newTileView.render());
             newTileView.setElement(elString);
             if (newTileView.model.get("hasBeenSelected") === true) {

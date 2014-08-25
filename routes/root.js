@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-router.get('/', getRoot);
+router.get('/', routeRoot);
 
-function getRoot(req, res) {
+function routeRoot(req, res) {
     console.log(res._parsedUrl)
     // res.render('index', { title: 'asdf' });
     res.redirect('/game/' + getGameURL(10))
