@@ -3,37 +3,19 @@ var socket = io();
 $(function() {
     var $data = $('#data');
 
-    $('#form').submit(function(ev) {
-        var data = {};
-        $.each(ev.target, function() {
-            var $this = $(this);
-            var name = $this.attr('name');
-            var type = $this.attr('type');
-            var val = $this.val();
-            if (type !== 'submit') {
-                data[name] = val;
-            }
-        });
-
-        data.room = window.location.pathname;
-
-        console.log(data);
-
-        socket.emit('game save', data);
-
-        return false;
-    });
-
     socket.emit('join room', window.location.pathname);
 
     socket.on('game saved', function(data) {
+        var collection = JSON.parse(data)
         console.log('game was saved');
+        console.log(collection);
         var key;
-        for (key in data) {
-            var item = data[key];
-            $data.append('<li>' + key + ': ' + item + '</li>');
+        Tiles.set(collection)
+        // for (key in data) {
+        //     var item = data[key];
+        //     $data.append('<li>' + key + ': ' + item + '</li>');
 
-        }
+        // }
     });
 
     socket.on('game load', function(data) {
@@ -42,13 +24,11 @@ $(function() {
 
     var Tile = Backbone.Model.extend({
         defaults: function() {
-            var order = Tiles.nextId(),
-                timeStamp = new Date().getTime();
+            var order = Tiles.nextId();
             return {
                 id: order,
                 hasBeenSelected: false,
-                selectedBy: "",
-                timeStamp: timeStamp
+                selectedBy: ""
             };
         },
         sync: function() {
@@ -193,7 +173,7 @@ $(function() {
             "click": "tileClick",
         },
         initialize: function() {
-            this.listenTo(this.model, "all", this.markTile);
+            this.listenTo(this.model, "change", this.markTile);
             this.listenTo(this.model, "change:hasBeenSelected", Tiles.checkIfWin);
         },
         render: function() {
@@ -208,11 +188,13 @@ $(function() {
                     hasBeenSelected: true
                 }
                 this.model.save(tile);
-                Tiles.numOfClicks++;
             }
         },
         // Update View
         markTile: function() {
+            Tiles.numOfClicks++;
+
+            console.log('markTile')
             var player = Tiles.numOfClicks % 2;
             if (player === 0) {
                 this.$el.addClass("one");
@@ -269,26 +251,26 @@ $(function() {
 
             _.each(Tiles.models, this.addTile, this);
         },
-        persistCollection: function() {
-            var selectedTiles = Tiles.where({hasBeenSelected: true});
-            Tiles.numOfClicks = selectedTiles.length;
-            var lastTile = _.max(selectedTiles, function(tile) {
-                return tile.get("timeStamp");
-            });
-            if (Tiles.numOfClicks > 0) {            
-                if (Tiles.checkIfWin(lastTile) === false) {
-                    Tiles.numOfClicks += lastTile.get("selectedBy");
-                    if (Tiles.numOfClicks % 2 === 0) {
-                        this.renderP1Turn();
-                    } else {
-                        this.renderP2Turn();
-                    }
-                }
-            } else {
-                this.renderP1Turn();
-            }
-            return lastTile;
-        },
+        // persistCollection: function() {
+        //     var selectedTiles = Tiles.where({hasBeenSelected: true});
+        //     Tiles.numOfClicks = selectedTiles.length;
+        //     var lastTile = _.max(selectedTiles, function(tile) {
+        //         return tile.get("timeStamp");
+        //     });
+        //     if (Tiles.numOfClicks > 0) {            
+        //         if (Tiles.checkIfWin(lastTile) === false) {
+        //             Tiles.numOfClicks += lastTile.get("selectedBy");
+        //             if (Tiles.numOfClicks % 2 === 0) {
+        //                 this.renderP1Turn();
+        //             } else {
+        //                 this.renderP2Turn();
+        //             }
+        //         }
+        //     } else {
+        //         this.renderP1Turn();
+        //     }
+        //     return lastTile;
+        // },
         renderP1Turn: function() {
             this.$el.addClass("one");
             this.playerOne.addClass("one");

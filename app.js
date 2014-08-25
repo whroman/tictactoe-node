@@ -6,8 +6,18 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var mongo = require('mongodb');
-var monk = require('monk');
-var db = monk('localhost:27017/tictactoe');
+var mongoose = require('mongoose');
+mongoose.connect('localhost:27017/tictactoe');
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
+
+var GameSchema = new mongoose.Schema({
+    room: String,
+    tiles: Array
+});
+
+var GameModel = mongoose.model('Game', GameSchema);
 
 var gulp = require('./Gulpfile.js');
 
@@ -16,10 +26,6 @@ var routes = {
     game: require('./routes/game'),
 }
 
-var api = {
-    game: require('./api/game')
-} 
-
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -27,14 +33,51 @@ var io = require('socket.io')(http);
 io.sockets.on('connection', function(socket){
     console.log('a user connected');
 
+    var game;
+
     socket.on('join room', function(room) {
+        console.log('Socket.io: join room');
+
+        var data;
+
         socket.join(room);
-        socket.emit('game load', ['asdf']);
+
+        var cb = function(doc) {
+            console.log('success', doc);
+
+            if (doc.length === 0) {
+                data = {
+                    room: room,
+                    tiles: []
+                };
+                game = new GameModel(data);
+                game.save(logError);
+            }
+        };
+
+        var eb = function(error) {
+            console.log(error);
+        };
+
+        var query = GameModel
+            .where('room')
+            .equals(room)
+            .limit(1)
+
+        query
+            .exec()
+            .addCallback(cb)
+            .addErrback(eb);
+
     });
 
     socket.on('game save', function(data) {
-        console.log(data);
-        io.sockets.in(data.room).emit('game saved', data);
+        console.log('Socket.io: game save');
+        var roomObj = {
+            room: data.room
+        };
+
+
     });
 
     socket.on('disconnect', function(data){
@@ -61,7 +104,12 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+function exposeDBToRouter(req, res, next) {
+    req.db = db;
+    next();    
+}
 
+app.use(exposeDBToRouter);
 app.use('/socket.io', function(req, res) {
     console.log('socket connected');
 });
@@ -101,5 +149,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
+function logError(error) {
+    console.log(error);
+}
 
 module.exports = app;

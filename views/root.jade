@@ -24,11 +24,5 @@ block content
                     div !
                 .text new game
 
-        ul#data
-
-        form#form
-            input#foo(type='text', name='foo')
-            input(type='submit')
-
     script#tile-template(type='text/template')
         <div id='tile<%-x%><%-y%>' class="tile<%- x == 0 ? ' nth-tile' : "" %>" ></div>
