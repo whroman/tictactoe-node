@@ -67,6 +67,7 @@ gulp.task('lint-scripts', function () {
 gulp.task(
     'build-scripts',
     function() {
+        console.log('Building scripts');
         gulp.src(paths.js.all)
     // Concat and Uglify concat'd JS file
         .pipe(

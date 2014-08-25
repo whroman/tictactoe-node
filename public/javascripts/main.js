@@ -1,4 +1,44 @@
+var socket = io();
+
 $(function() {
+    var $data = $('#data');
+
+    $('#form').submit(function(ev) {
+        var data = {};
+        $.each(ev.target, function() {
+            var $this = $(this);
+            var name = $this.attr('name');
+            var type = $this.attr('type');
+            var val = $this.val();
+            if (type !== 'submit') {
+                data[name] = val;
+            }
+        });
+
+        data.room = window.location.pathname;
+
+        console.log(data);
+
+        socket.emit('game save', data);
+
+        return false;
+    });
+
+    socket.emit('join room', window.location.pathname);
+
+    socket.on('game saved', function(data) {
+        console.log('game was saved');
+        var key;
+        for (key in data) {
+            var item = data[key];
+            $data.append('<li>' + key + ': ' + item + '</li>');
+
+        }
+    });
+
+    socket.on('game load', function(data) {
+        console.log(data);
+    });
 
     var Tile = Backbone.Model.extend({
         defaults: function() {
