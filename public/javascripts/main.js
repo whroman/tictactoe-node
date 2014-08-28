@@ -1,34 +1,14 @@
 var socket = io();
 
 $(function() {
-    var $data = $('#data');
-
-    socket.emit('join room', window.location.pathname);
-
-    socket.on('game saved', function(data) {
-        var collection = JSON.parse(data)
-        console.log('game was saved');
-        console.log(collection);
-        var key;
-        Tiles.set(collection)
-        // for (key in data) {
-        //     var item = data[key];
-        //     $data.append('<li>' + key + ': ' + item + '</li>');
-
-        // }
-    });
-
-    socket.on('game load', function(data) {
-        console.log(data);
-    });
-
     var Tile = Backbone.Model.extend({
         defaults: function() {
             var order = Tiles.nextId();
             return {
                 id: order,
                 hasBeenSelected: false,
-                selectedBy: ""
+                selectedBy: "",
+                timeStamp: (new Date().getTime())
             };
         },
         sync: function() {
@@ -110,16 +90,8 @@ $(function() {
             this.possibleWins.push(bottomLeftTopRight);
             return this;
         },
-        selectedTiles: function(tile) {
-            var whereSelected = {
-                "selectedBy": tile.get("selectedBy")
-            };
-            return this.where(whereSelected);
-        },
         checkIfWin: function(tile) {
-            Tiles.saveGame();
-
-            var playerTiles = Tiles.selectedTiles(tile);
+            var playerTiles = Tiles.getSelectedTiles(tile);
             var possibleWins = Tiles.possibleWins;
             var playerTileCoords = [];
             var i = 0;
@@ -133,7 +105,7 @@ $(function() {
 
             for (i = 0; i < possibleWins.length; i++) {
                 var count = 0,
-                    numSelectedTiles = Tiles.where({"hasBeenSelected": true}).length;
+                    numSelectedTiles = Tiles.getSelectedTiles().length;
                 for (var j = 0; j < possibleWins[i].length; j++) {
                     for (var k = 0; k < playerTileCoords.length; k++) {
                         if (possibleWins[i][j].x == playerTileCoords[k].x &&
@@ -158,14 +130,36 @@ $(function() {
         },
         saveGame: function() {
             var gameState = {
-                collection: JSON.stringify(this.models),
-                room: window.location.pathname
-            }
-            socket.emit('game save', gameState);
+                tiles: this.models,
+                id: window.location.pathname
+            };
+            socket.emit('game:save', gameState);
         },
-    });
+        getSelectedTiles: function(tile) {
+            var query;
+            if (tile) {
+                query = {
+                    "selectedBy": tile.get("selectedBy")
+                };
+            } else {
+                query = {
+                    "hasBeenSelected": true
+                };
+            }
 
-    var Tiles = new AllTiles();
+            return this.where(query);
+        },
+        getLastTile: function() {
+            var lastTile = _.max(
+                Tiles.getSelectedTiles(),
+                function(tile) {
+                    return tile.get("timeStamp");
+                }
+            );
+
+            return lastTile;
+        }
+    });
 
     var TileView = Backbone.View.extend({
         template: _.template($('#tile-template').html()),
@@ -173,7 +167,7 @@ $(function() {
             "click": "tileClick",
         },
         initialize: function() {
-            this.listenTo(this.model, "change", this.markTile);
+            this.listenTo(this.model, "change:hasBeenSelected", this.markTile);
             this.listenTo(this.model, "change:hasBeenSelected", Tiles.checkIfWin);
         },
         render: function() {
@@ -186,16 +180,16 @@ $(function() {
                 var tile = {
                     selectedBy: player,
                     hasBeenSelected: true
-                }
+                };
                 this.model.save(tile);
+                Tiles.saveGame();
             }
         },
         // Update View
         markTile: function() {
             Tiles.numOfClicks++;
-
-            console.log('markTile')
             var player = Tiles.numOfClicks % 2;
+
             if (player === 0) {
                 this.$el.addClass("one");
                 App.playerOne.removeClass("one");
@@ -214,7 +208,8 @@ $(function() {
         el: $("#board"),
         playerOne : $(".player.one .tile"),
         playerTwo : $(".player.two .tile"),
-        initialize: function(options) {
+        initialize: function(tiles, options) {
+            var This = this;
 
             this.listenTo(Tiles, "win", this.win);
             this.listenTo(Tiles, "tie", this.tie);
@@ -227,50 +222,46 @@ $(function() {
             $(".new-game").on("click", function() {
                 $("#overlay-bg").removeClass("show");
                 $("#message").removeClass("show");
-                Tiles.reset([], 3);
+                Tiles.reset([], {size: 3});
                 Tiles.allowClicks = true;
             });
 
-            // Tiles.fetch({});
-
-            this.render([], options.size);
+            this.render(tiles, options);
         },
-        render: function(collection, size) {
+        render: function(tiles, options) {
             this.$el.empty();   
-            Tiles.boardSize = size;
+            Tiles.boardSize = options.size;
             Tiles.horizontalWins()
                 .verticalWins()
                 .crossWins();
 
             if (Tiles.length === 0) {
-                Tiles.newGame(size);
+                Tiles.newGame(options.size);
                 this.renderP1Turn();
             } else {
-                this.persistCollection();
+                this.loadGame();
             }
 
             _.each(Tiles.models, this.addTile, this);
         },
-        // persistCollection: function() {
-        //     var selectedTiles = Tiles.where({hasBeenSelected: true});
-        //     Tiles.numOfClicks = selectedTiles.length;
-        //     var lastTile = _.max(selectedTiles, function(tile) {
-        //         return tile.get("timeStamp");
-        //     });
-        //     if (Tiles.numOfClicks > 0) {            
-        //         if (Tiles.checkIfWin(lastTile) === false) {
-        //             Tiles.numOfClicks += lastTile.get("selectedBy");
-        //             if (Tiles.numOfClicks % 2 === 0) {
-        //                 this.renderP1Turn();
-        //             } else {
-        //                 this.renderP2Turn();
-        //             }
-        //         }
-        //     } else {
-        //         this.renderP1Turn();
-        //     }
-        //     return lastTile;
-        // },
+        loadGame: function() {
+            var lastTile = Tiles.getLastTile();
+            var lastPlayer = lastTile.get("selectedBy");
+
+            if (Tiles.numOfClicks > 0) {            
+                if (lastPlayer === 0) {
+                    this.renderP2Turn();
+                } else {
+                    this.renderP1Turn();
+                }
+            } else {
+                this.renderP1Turn();
+            }
+
+            Tiles.checkIfWin(lastTile);
+
+            return lastTile;
+        },
         renderP1Turn: function() {
             this.$el.addClass("one");
             this.playerOne.addClass("one");
@@ -308,7 +299,36 @@ $(function() {
             $("#message .title").html(text);    
         }
     });
-    var App = new BoardView({
-        size : 3
+
+
+    var App, Tiles;
+
+    var gameInitialState = {
+        id: window.location.pathname,
+        tiles: []
+    };
+
+    socket.emit('room:join', gameInitialState);
+
+    socket.on('game:saved', function(tiles) {
+        if (tiles.length === 9) {
+            console.log('game was saved!');
+            Tiles.set(tiles);
+        }
     });
+
+    socket.on('game:load', function(tiles) {
+        if (tiles.length === 9) {
+            console.log('game was loaded!');
+            Tiles = new AllTiles();
+            App = new BoardView(
+                tiles,
+                {
+                    size : 3
+                }
+            );    
+            Tiles.set(tiles);        
+        }
+    });
+
 });

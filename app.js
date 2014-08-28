@@ -8,13 +8,21 @@ var bodyParser = require('body-parser');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 mongoose.connect('localhost:27017/tictactoe');
+mongoose.set('debug', true)
+
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
 var GameSchema = new mongoose.Schema({
-    room: String,
-    tiles: Array
+    id: String,
+    tiles: Array,
+    lastModified: {
+        type: Number,
+        default: function() {
+            return (new Date().getTime());
+        } 
+    }
 });
 
 var GameModel = mongoose.model('Game', GameSchema);
@@ -33,50 +41,99 @@ var io = require('socket.io')(http);
 io.sockets.on('connection', function(socket){
     console.log('a user connected');
 
-    var game;
-
-    socket.on('join room', function(room) {
+    socket.on('room:join', function(data) {
         console.log('Socket.io: join room');
 
-        var data;
-
-        socket.join(room);
+        socket.join(data.id);
 
         var cb = function(doc) {
-            console.log('success', doc);
+            var query, update, options, cb;
+            console.log(doc)
+            if (docDoesntExist(doc)) {
+                console.log('creating new doc: ' + data.id);
 
-            if (doc.length === 0) {
-                data = {
-                    room: room,
-                    tiles: []
+                query = {
+                    id: data.id
+                }
+
+                update = {
+                    id: data.id,
+                    tiles: [
+                        {}, {}, {}, {}, {}, {}, {}, {}, {}
+                    ]
                 };
-                game = new GameModel(data);
-                game.save(logError);
+
+                options = {
+                    upsert: true
+                };
+
+                cb = function(err, doc) {
+                    if (!err) {
+                        console.log('Creation of doc was successful!', doc.id)
+                        io.sockets
+                            .in(data.id)
+                            .emit('game:load', update.tiles);
+                    } else {
+                        console.log('Creation error', doc)
+                    }
+                }
+
+                GameModel.update(
+                    query,
+                    update,
+                    options,
+                    cb
+                );
+
+            } else {
+                console.log("loading doc: " + doc[0].id);
+
+                io.sockets
+                    .in(doc[0].id)
+                    .emit('game:load', doc[0].tiles);
             }
         };
 
-        var eb = function(error) {
-            console.log(error);
-        };
+        var docDoesntExist = function (doc) {
+            return doc.length === 0;
+        }
 
-        var query = GameModel
-            .where('room')
-            .equals(room)
+        GameModel
+            .where('id')
+            .equals(data.id)
             .limit(1)
-
-        query
             .exec()
             .addCallback(cb)
-            .addErrback(eb);
+            .addErrback(logError);
 
     });
 
-    socket.on('game save', function(data) {
+    socket.on('game:save', function(data) {
         console.log('Socket.io: game save');
-        var roomObj = {
-            room: data.room
+
+        var query = {
+            id: data.id
         };
 
+        var date = (new Date().getTime());
+
+        var set = {
+            tiles: data.tiles,
+            lastModified: date
+        };
+
+        var cb = function(err) {
+            var log = 'Saved game ' + data.id + ': ' + data.tiles;
+            if (!err) {
+                console.log(log);
+                io.sockets
+                    .in(data.id)
+                    .emit('game:saved', data.tiles);
+            }
+        };
+
+        GameModel
+            .update(query, set, cb)
 
     });
 
@@ -102,7 +159,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 function exposeDBToRouter(req, res, next) {
     req.db = db;
@@ -149,8 +206,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-function logError(error) {
-    console.log(error);
+function logError(error, item) {
+    console.log('There was an error', error, item);
 }
 
 module.exports = app;

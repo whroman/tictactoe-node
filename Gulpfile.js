@@ -34,7 +34,8 @@ paths.js.lib = [
 var options = {
     uglify: {
         mangle: false,
-        outSourceMap: true
+        outSourceMap: true,
+        basePath: './public/build'
     },
     scss: {
         style: 'compressed'
