@@ -8,7 +8,7 @@ $(function() {
                 id: order,
                 hasBeenSelected: false,
                 selectedBy: "",
-                timeStamp: (new Date().getTime())
+                timeStamp: 0
             };
         },
         sync: function() {
@@ -16,6 +16,10 @@ $(function() {
         },
         x : "", 
         y : "",
+        stamp: function() {
+            var stamp = (new Date().getTime());
+            this.set('timeStamp', stamp);
+        }
     });
 
     var AllTiles = Backbone.Collection.extend({
@@ -25,7 +29,7 @@ $(function() {
         },
         comparator: "id",
         numOfClicks: 0,
-        startPlayer: 0,
+        currentPlayer: 0,
         boardSize: null,
         allowClicks: true,
         possibleWins: [],
@@ -41,9 +45,14 @@ $(function() {
                         y: yy, 
                     });
                     tile.save();
-
                 }
             }
+        },
+        generateWins: function() {
+            this.horizontalWins();
+            this.verticalWins();
+            this.crossWins();
+            return this;
         },
         horizontalWins: function() {
             for (var yy = 0; yy < this.boardSize; yy++) {
@@ -90,8 +99,9 @@ $(function() {
             this.possibleWins.push(bottomLeftTopRight);
             return this;
         },
-        checkIfWin: function(tile) {
-            var playerTiles = Tiles.getSelectedTiles(tile);
+        checkIfWin: function() {
+            var lastTile = Tiles.getLastTile();
+            var playerTiles = Tiles.getSelectedTiles(lastTile);
             var possibleWins = Tiles.possibleWins;
             var playerTileCoords = [];
             var i = 0;
@@ -115,10 +125,10 @@ $(function() {
                     }
                 }
                 if (count == Tiles.boardSize) {
-                    tile.trigger("win", tile);
+                    lastTile.trigger("win");
                     return true;
                 } else if (numSelectedTiles == Tiles.boardSize * Tiles.boardSize) {
-                    tile.trigger("tie");
+                    lastTile.trigger("tie");
                     return true;
                 }
             }
@@ -157,6 +167,10 @@ $(function() {
                 }
             );
 
+            if (lastTile === -Infinity) {
+                lastTile = false;
+            }
+
             return lastTile;
         }
     });
@@ -176,9 +190,8 @@ $(function() {
         // Update Model
         tileClick: function() {
             if (this.model.get("hasBeenSelected") === false &&  Tiles.allowClicks === true) {
-                var player = Tiles.numOfClicks % 2;
                 var tile = {
-                    selectedBy: player,
+                    selectedBy: Tiles.currentPlayer,
                     hasBeenSelected: true
                 };
                 this.model.save(tile);
@@ -187,19 +200,32 @@ $(function() {
         },
         // Update View
         markTile: function() {
-            Tiles.numOfClicks++;
-            var player = Tiles.numOfClicks % 2;
-
+            var player = this.model.get('selectedBy');
+            this.model.stamp();
+            var nextPlayer = player === 0 ? 1 : 0;
+            Tiles.currentPlayer = nextPlayer;
             if (player === 0) {
-                this.$el.addClass("one");
-                App.playerOne.removeClass("one");
-                App.playerTwo.addClass("two");
-                App.$el.addClass("two").removeClass("one");
+                this.$el
+                    .addClass("one")
+                    .removeClass("two");
+                App.playerOne
+                    .removeClass("one");
+                App.playerTwo
+                    .addClass("two");
+                App.$el
+                    .addClass("two")
+                    .removeClass("one");
             } else if (player === 1) {
-                this.$el.addClass("two");
-                App.playerTwo.removeClass("two");
-                App.playerOne.addClass("one");
-                App.$el.addClass("one").removeClass("two");
+                this.$el
+                    .addClass("two")
+                    .removeClass("one");
+                App.playerTwo
+                    .removeClass("two");
+                App.playerOne
+                    .addClass("one");
+                App.$el
+                    .addClass("one")
+                    .removeClass("two");
             }
         },
     });
@@ -209,8 +235,6 @@ $(function() {
         playerOne : $(".player.one .tile"),
         playerTwo : $(".player.two .tile"),
         initialize: function(tiles, options) {
-            var This = this;
-
             this.listenTo(Tiles, "win", this.win);
             this.listenTo(Tiles, "tie", this.tie);
             this.listenTo(Tiles, "reset", this.render);
@@ -224,6 +248,7 @@ $(function() {
                 $("#message").removeClass("show");
                 Tiles.reset([], {size: 3});
                 Tiles.allowClicks = true;
+                Tiles.saveGame();
             });
 
             this.render(tiles, options);
@@ -231,47 +256,40 @@ $(function() {
         render: function(tiles, options) {
             this.$el.empty();   
             Tiles.boardSize = options.size;
-            Tiles.horizontalWins()
-                .verticalWins()
-                .crossWins();
+            Tiles.generateWins();
 
             if (Tiles.length === 0) {
                 Tiles.newGame(options.size);
+            }
+
+            if (Tiles.currentPlayer === 0) {
                 this.renderP1Turn();
             } else {
-                this.loadGame();
+                this.renderP2Turn();
             }
 
             _.each(Tiles.models, this.addTile, this);
         },
-        loadGame: function() {
-            var lastTile = Tiles.getLastTile();
-            var lastPlayer = lastTile.get("selectedBy");
-
-            if (Tiles.numOfClicks > 0) {            
-                if (lastPlayer === 0) {
-                    this.renderP2Turn();
-                } else {
-                    this.renderP1Turn();
-                }
-            } else {
-                this.renderP1Turn();
-            }
-
-            Tiles.checkIfWin(lastTile);
-
-            return lastTile;
-        },
         renderP1Turn: function() {
-            this.$el.addClass("one");
-            this.playerOne.addClass("one");
+            this.$el
+                .addClass("one")
+                .removeClass("two");
+            this.playerOne
+                .addClass("one");
+            this.playerTwo
+                .removeClass("two");
         },
         renderP2Turn: function() {
-            this.$el.addClass("two");
-            this.playerTwo.addClass("two");            
+            this.$el
+                .addClass("two")
+                .removeClass("one");
+            this.playerTwo
+                .addClass("two");
+            this.playerOne
+                .removeClass("one");
         },
         addTile: function(tile) {
-            var elString = "#tile" + tile.get("x") + tile.get("y");
+            var elString = "#tileX" + tile.get("x") + 'Y' + tile.get("y");
             var newTileView = new TileView({
                 model: tile,
             });
@@ -285,7 +303,8 @@ $(function() {
                 }
             }
         },
-        win: function(tile) {
+        win: function() {
+            var tile = Tiles.getLastTile();
             Tiles.endOfGame();
             player = (tile.get("selectedBy") === 0) ? "Green" : "Orange";
             this.displayOverlay(player + " wins!");
@@ -319,6 +338,10 @@ $(function() {
 
     socket.on('game:load', function(tiles) {
         if (tiles.length === 9) {
+            var sortedTiles = _.sortBy(
+                tiles,
+                'timeStamp'
+            );
             console.log('game was loaded!');
             Tiles = new AllTiles();
             App = new BoardView(
@@ -326,8 +349,8 @@ $(function() {
                 {
                     size : 3
                 }
-            );    
-            Tiles.set(tiles);        
+            );
+            Tiles.set(sortedTiles);        
         }
     });
 

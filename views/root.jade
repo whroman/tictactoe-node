@@ -2,7 +2,7 @@ extends layout
 
 block content
     #page
-        //- h1 tic tac toe
+        h1 tic tac toe
         #board
         .clearfix
         #info
@@ -25,4 +25,4 @@ block content
                 .text new game
 
     script#tile-template(type='text/template')
-        <div id='tile<%-x%><%-y%>' class="tile<%- x == 0 ? ' nth-tile' : "" %>" ></div>
+        <div id='tileX<%-x%>Y<%-y%>' class="tile <%- x == 0 ? 'nth-tile' : "" %>" ></div>
