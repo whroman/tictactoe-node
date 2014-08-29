@@ -25,7 +25,7 @@ paths.js.src = [
 
 paths.js.lib = [
     paths.bower + 'jquery/dist/jquery.js',
-    paths.bower + 'underscore/underscore.js',
+    paths.bower + 'lodash/dist/lodash.underscore.js',
     paths.bower + 'backbone/backbone.js',
     paths.bower + 'backbone.localStorage/backbone.localStorage.js',
     paths.bower + 'socket.io-client/socket.io.js'
