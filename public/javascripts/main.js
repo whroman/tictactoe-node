@@ -235,23 +235,27 @@ $(function() {
         playerOne : $(".player.one .tile"),
         playerTwo : $(".player.two .tile"),
         initialize: function(tiles, options) {
+            this
+                .setCollectionEvents()
+                .setDOMEvents()
+                .render(tiles, options);
+        },
+        setCollectionEvents: function() {
             this.listenTo(Tiles, "win", this.win);
             this.listenTo(Tiles, "tie", this.tie);
             this.listenTo(Tiles, "reset", this.render);
 
+            return this;
+        },
+        setDOMEvents: function() {
             $("#overlay-bg").on("click", function() {
                 $(this).removeClass("show");
                 $("#message").removeClass("show");
             });
-            $(".new-game").on("click", function() {
-                $("#overlay-bg").removeClass("show");
-                $("#message").removeClass("show");
-                Tiles.reset([], {size: 3});
-                Tiles.allowClicks = true;
-                Tiles.saveGame();
+            $(".new-game").on("click", function() {                
+                socket.emit('game:reset', window.location.pathname);
             });
-
-            this.render(tiles, options);
+            return this;
         },
         render: function(tiles, options) {
             this.$el.empty();   
@@ -352,6 +356,15 @@ $(function() {
             );
             Tiles.set(sortedTiles);        
         }
+    });
+
+    socket.on('game:reset', function() {
+        console.log('game was reset!')
+        $("#overlay-bg").removeClass("show");
+        $("#message").removeClass("show");
+        Tiles.reset([], {size: 3});
+        Tiles.allowClicks = true;
+        Tiles.saveGame();
     });
 
 });

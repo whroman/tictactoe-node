@@ -137,6 +137,14 @@ io.sockets.on('connection', function(socket){
 
     });
 
+    socket.on('game:reset', function(id) {
+        console.log('Game is being reset');
+        io.sockets
+            .in(id)
+            .emit('game:reset');
+
+    });
+
     socket.on('disconnect', function(data){
         console.log('user disconnected');
     });
