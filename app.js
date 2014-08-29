@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 mongoose.connect('localhost:27017/tictactoe');
-mongoose.set('debug', true)
+// mongoose.set('debug', true)
 
 var db = mongoose.connection;
 
@@ -50,7 +50,7 @@ io.sockets.on('connection', function(socket){
             var query, update, options, cb;
             console.log(doc)
             if (docDoesntExist(doc)) {
-                console.log('creating new doc: ' + data.id);
+                console.log('Creating new doc: ' + data.id);
 
                 query = {
                     id: data.id
@@ -69,7 +69,7 @@ io.sockets.on('connection', function(socket){
 
                 cb = function(err, doc) {
                     if (!err) {
-                        console.log('Creation of doc was successful!', doc.id)
+                        console.log('Creation of doc ' + doc.id + ' was successful!')
                         io.sockets
                             .in(data.id)
                             .emit('game:load', update.tiles);
@@ -123,9 +123,8 @@ io.sockets.on('connection', function(socket){
         };
 
         var cb = function(err) {
-            var log = 'Saved game ' + data.id + ': ' + data.tiles;
             if (!err) {
-                console.log(log);
+                console.log('Saved game: ' + data.id);
                 io.sockets
                     .in(data.id)
                     .emit('game:saved', data.tiles);

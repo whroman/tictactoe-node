@@ -32,7 +32,6 @@ $(function() {
         currentPlayer: 0,
         boardSize: null,
         allowClicks: true,
-        possibleWins: [],
         nextId: function() {
             if (!this.length) return 1;
             return this.last().get("id") + 1;
@@ -48,89 +47,64 @@ $(function() {
                 }
             }
         },
-        generateWins: function() {
-            this.horizontalWins();
-            this.verticalWins();
-            this.crossWins();
-            return this;
-        },
-        horizontalWins: function() {
-            for (var yy = 0; yy < this.boardSize; yy++) {
-                var wins = [];
-                for (var xx = 0; xx < this.boardSize; xx++) {
-                    wins.push({
-                        x: xx,
-                        y: yy
-                    });
+        check: {
+            col: {
+                val: null,
+                filter: function(model) {
+                    var isInCol = model.get('x') === Tiles.check.col.val;
+                    return isInCol;
+                },
+                win: function(tiles) {
+                    var col = _.filter(tiles, this.filter);
+                    if (col.length === 3) return true;
+                    return false;
                 }
-                this.possibleWins.push(wins);
-            }
-
-            return this;
-        },
-        verticalWins: function() {
-            for (var xx = 0; xx < this.boardSize; xx++) {
-                var wins = [];
-                for (var yy = 0; yy < this.boardSize; yy++) {
-                    wins.push({
-                        x: xx,
-                        y: yy
-                    });
+            },
+            row: {
+                val: null,
+                filter: function(model) {
+                    var isInRow = model.get('y') === Tiles.check.row.val;
+                    return isInRow;
+                },
+                win: function(tiles) {
+                    var row = _.filter(tiles, this.filter);
+                    if (row.length === 3) return true;
+                    return false;
                 }
-                this.possibleWins.push(wins);
-            }
-            return this;
-        },
-        crossWins: function() {
-            var topLeftBottomRight = [],
-                bottomLeftTopRight = [];
-
-            for (var size = 0; size < this.boardSize; size++) {
-                topLeftBottomRight.push({
-                    x: size,
-                    y: size
-                });
-                bottomLeftTopRight.push({
-                    x: size,
-                    y: this.boardSize - 1 - size
-                });
-            }
-            this.possibleWins.push(topLeftBottomRight);
-            this.possibleWins.push(bottomLeftTopRight);
-            return this;
+            },
+            diag: {
+                filter: function(model) {
+                    var isInDiag = model.get('x') === model.get('y');
+                    return isInDiag;
+                },
+                win: function(tiles) {
+                    var diag = _.filter(tiles, this.filter);
+                    if (diag.length === 3) return true;
+                    return false;
+                }
+            },
         },
         checkIfWin: function() {
             var lastTile = Tiles.getLastTile();
             var playerTiles = Tiles.getSelectedTiles(lastTile);
-            var possibleWins = Tiles.possibleWins;
-            var playerTileCoords = [];
-            var i = 0;
+            Tiles.check.col.val = lastTile.get('x');
+            Tiles.check.row.val = lastTile.get('y');
 
-            for (i; i < playerTiles.length; i++) {
-                playerTileCoords.push({
-                    x: playerTiles[i].get("x"),
-                    y: playerTiles[i].get("y")                  
-                });
+            if (Tiles.check.col.val  === Tiles.check.row.val ) {
+                if (Tiles.check.diag.win(playerTiles)) {
+                    lastTile.trigger("win");
+                    return true;   
+                }
             }
 
-            for (i = 0; i < possibleWins.length; i++) {
-                var count = 0,
-                    numSelectedTiles = Tiles.getSelectedTiles().length;
-                for (var j = 0; j < possibleWins[i].length; j++) {
-                    for (var k = 0; k < playerTileCoords.length; k++) {
-                        if (possibleWins[i][j].x == playerTileCoords[k].x &&
-                            possibleWins[i][j].y == playerTileCoords[k].y) {
-                            count++;
-                        }
-                    }
-                }
-                if (count == Tiles.boardSize) {
-                    lastTile.trigger("win");
-                    return true;
-                } else if (numSelectedTiles == Tiles.boardSize * Tiles.boardSize) {
-                    lastTile.trigger("tie");
-                    return true;
-                }
+            if (Tiles.check.col.win(playerTiles)) {
+                lastTile.trigger("win");
+                return true;   
+            }
+
+            if (Tiles.check.row.win(playerTiles)) {
+                lastTile.trigger("win");
+                return true;   
             }
 
             return false;
@@ -260,7 +234,6 @@ $(function() {
         render: function(tiles, options) {
             this.$el.empty();   
             Tiles.boardSize = options.size;
-            Tiles.generateWins();
 
             if (Tiles.length === 0) {
                 Tiles.newGame(options.size);
@@ -359,7 +332,7 @@ $(function() {
     });
 
     socket.on('game:reset', function() {
-        console.log('game was reset!')
+        console.log('game was reset!');
         $("#overlay-bg").removeClass("show");
         $("#message").removeClass("show");
         Tiles.reset([], {size: 3});
