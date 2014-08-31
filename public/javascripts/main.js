@@ -86,25 +86,29 @@ $(function() {
         },
         checkIfWin: function() {
             var lastTile = Tiles.getLastTile();
-            var playerTiles = Tiles.getSelectedTiles(lastTile);
-            Tiles.check.col.val = lastTile.get('x');
-            Tiles.check.row.val = lastTile.get('y');
+            var playerTiles;
 
-            if (Tiles.check.col.val  === Tiles.check.row.val ) {
-                if (Tiles.check.diag.win(playerTiles)) {
+            if (lastTile) {
+                playerTiles = Tiles.getSelectedTiles(lastTile);
+                Tiles.check.col.val = lastTile.get('x');
+                Tiles.check.row.val = lastTile.get('y');
+
+                if (Tiles.check.col.val  === Tiles.check.row.val ) {
+                    if (Tiles.check.diag.win(playerTiles)) {
+                        lastTile.trigger("win");
+                        return true;   
+                    }
+                }
+
+                if (Tiles.check.col.win(playerTiles)) {
                     lastTile.trigger("win");
                     return true;   
                 }
-            }
 
-            if (Tiles.check.col.win(playerTiles)) {
-                lastTile.trigger("win");
-                return true;   
-            }
-
-            if (Tiles.check.row.win(playerTiles)) {
-                lastTile.trigger("win");
-                return true;   
+                if (Tiles.check.row.win(playerTiles)) {
+                    lastTile.trigger("win");
+                    return true;   
+                }
             }
 
             return false;
@@ -328,6 +332,14 @@ $(function() {
                 }
             );
             Tiles.set(sortedTiles);        
+        } else {
+            Tiles = new AllTiles();
+            App = new BoardView(
+                [],
+                {
+                    size : 3
+                }
+            );
         }
     });
 
