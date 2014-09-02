@@ -1,13 +1,14 @@
+@import "reset";
+
 $orange: #FF8822;
 $green: #21D330;
-$gray: #555555;
+$gray-dark: #555555;
+$gray-md: #999999;
+$white: #FFF;
 
 body {
     min-width: 600px;
     margin: 0;
-}
-
-body > * {
     font-weight: 200;
     font-family: "helvetica neue", arial, sans-serif;
     letter-spacing: 0.05em;
@@ -19,7 +20,11 @@ h1 {
     font-weight: 800;
     margin: 0;
     line-height: 2em;
-    color: $gray;
+    color: $gray-dark;
+}
+
+.text-center {
+    text-align: center;
 }
 
 .left {
@@ -40,20 +45,15 @@ h1 {
     float: left;
     width: 90px;
     height: 90px;
-    border: 10px solid #999;
-    background-color: #FFF;
+    border: 10px solid $gray-md;
+    background-color: $white;
+    display: inline-block;
     margin: 10px;
     cursor: pointer;
     border-radius: 100%;
 
-    &.faux {
-        width: 45px;
-        height: 45px;
-        cursor: default;
-    }
-
     &:hover {
-        border-color: $gray;
+        border-color: $gray-dark;
     }
 
     &.one {
@@ -63,6 +63,25 @@ h1 {
     &.two { 
         background-color: $orange;
     }
+    
+    &.nth-tile {
+        clear: both;
+    }
+
+    &.faux {
+        width: 45px;
+        height: 45px;
+        cursor: default;
+    }
+}
+
+.button.tile.faux {
+    color: $white;
+    text-align: center;
+    line-height: 45px;
+    font-size: 40px;
+    font-weight: 500;
+    cursor: pointer;
 }
 
 #board-wrapper {
@@ -93,10 +112,6 @@ h1 {
     margin-bottom: 12px;
 }
 
-.nth-tile {
-    clear: both;
-}
-
 #info {
     clear: both;
     font-size: 24px;
@@ -115,7 +130,7 @@ h1 {
         float: left;
         display: inline-block;
         margin-left: 10px;
-        color: $gray;
+        color: $gray-dark;
         font-weight: 800;
     }
 }
@@ -149,15 +164,22 @@ h1 {
     width: 400px;
     left: 50%;
     margin-left: -218px;
-}
 
-#message.show {
-    display: inline-block;
-}
+    &.show {
+        display: inline-block;
+    }
 
-#message .title {
-    line-height: 1.5em;
-    font-size: 40px;
+    .text {
+        display: inline-block;
+        line-height: 80px;
+        font-size: 32px;
+        color: $gray-md
+    }
+
+    .title {
+        line-height: 1.5em;
+        font-size: 40px;
+    }
 }
 
 .new-game {
@@ -165,28 +187,9 @@ h1 {
     cursor: pointer;
 }
 
-#message .text {
-    display: inline-block;
-    line-height: 80px;
-    font-size: 32px;
-    color: #999
-}
-
-.button.tile.faux {
-    width: 45px;
-    height: 45px;
-    color: #FFF;
-    text-align: center;
-    line-height: 45px;
-    font-size: 40px;
-    font-weight: 500;
-    display: inline-block;
-    cursor: pointer;
-}
-
 .new-game:hover * {
-    color: $gray;
-    border-color: $gray;
+    color: $gray-dark;
+    border-color: $gray-dark;
 }
 
 .clearfix {
