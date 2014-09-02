@@ -31,24 +31,12 @@ var TileView = Backbone.View.extend({
             this.$el
                 .addClass("one")
                 .removeClass("two");
-            App.Board.playerOne
-                .removeClass("one");
-            App.Board.playerTwo
-                .addClass("two");
-            App.Board.$el
-                .addClass("two")
-                .removeClass("one");
+            App.Board.renderP2Turn();
         } else if (player === 1) {
             this.$el
                 .addClass("two")
                 .removeClass("one");
-            App.Board.playerTwo
-                .removeClass("two");
-            App.Board.playerOne
-                .addClass("one");
-            App.Board.$el
-                .addClass("one")
-                .removeClass("two");
+            App.Board.renderP1Turn();
         }
     },
 });

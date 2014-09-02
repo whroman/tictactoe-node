@@ -1,5 +1,6 @@
 var BoardView = Backbone.View.extend({
     el: $("#board"),
+    $wrapper: $('#board-wrapper'),
     playerOne : $(".player.one .tile"),
     playerTwo : $(".player.two .tile"),
     initialize: function(tiles, options) {
@@ -42,21 +43,13 @@ var BoardView = Backbone.View.extend({
         _.each(App.Tiles.models, this.addTile, this);
     },
     renderP1Turn: function() {
-        this.$el
+        this.$wrapper
             .addClass("one")
-            .removeClass("two");
-        this.playerOne
-            .addClass("one");
-        this.playerTwo
             .removeClass("two");
     },
     renderP2Turn: function() {
-        this.$el
+        this.$wrapper
             .addClass("two")
-            .removeClass("one");
-        this.playerTwo
-            .addClass("two");
-        this.playerOne
             .removeClass("one");
     },
     addTile: function(tile) {

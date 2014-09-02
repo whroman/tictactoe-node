@@ -51,10 +51,12 @@ var CollectionTiles = Backbone.Collection.extend({
         diag: {
             filter: function(model) {
                 var isInDiag = model.get('x') === model.get('y');
+                console.log(isInDiag, model)
                 return isInDiag;
             },
             win: function(tiles) {
                 var diag = _.filter(tiles, this.filter);
+                console.log(diag, tiles)
                 if (diag.length === 3) return true;
                 return false;
             }
