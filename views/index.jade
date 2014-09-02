@@ -1,0 +1,32 @@
+extends layout
+
+block content
+    div.spacer-lg
+
+    img.bg-image(src="public/images/screenshot.png")
+
+    #info.text-sm
+        a.player.new-game(href="/game/")
+            .button.tile.faux
+                div !
+            .name play!
+
+        .spacer-md
+
+        h3.text-sm to play with a friend:
+        div.spacer-sm
+        ul.text-xs
+            li 1. click "play!"
+            div.spacer-sm
+            li 2. copy the URL
+            div.spacer-sm
+            li 3. send it to a friend
+            div.spacer-sm
+            li 4. have fun!
+
+        .spacer-md
+
+        .player.new-game
+            .button.tile.faux
+                div /
+            .name source code!

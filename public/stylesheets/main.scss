@@ -1,4 +1,6 @@
 @import "reset";
+@import "text";
+@import "spacer";
 
 $orange: #FF8822;
 $green: #21D330;
@@ -15,16 +17,15 @@ body {
     font-size: 16px;
 }
 
-h1 {
-    font-size: 40px;
-    font-weight: 800;
-    margin: 0;
-    line-height: 2em;
-    color: $gray-dark;
-}
-
-.text-center {
-    text-align: center;
+.bg-image {
+    position: absolute;
+    width: 400px;
+    left: 50%;
+    margin-left: -200px;
+    top: 50%;
+    margin-top: -250px;
+    z-index: -1;
+    opacity: 0.15;
 }
 
 .left {
@@ -114,7 +115,6 @@ h1 {
 
 #info {
     clear: both;
-    font-size: 24px;
     display: inline-block;
     vertical-align: bottom;
     margin: 0 40px;

@@ -19,7 +19,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 var gulp = require('./Gulpfile.js');
 
 var routes = {
-    root: require('./routes/root'),
+    index: require('./routes/index'),
     game: require('./routes/game'),
 }
 
@@ -28,8 +28,10 @@ var http = require('http').Server(app);
 
 var io = require('./sockets')(http, mongoose);
 
-http.listen(process.env.PORT || 3000, function(){
-  console.log('listening on *:3000');
+var port = process.env.PORT || 3000;
+
+http.listen(port, function(foo){
+    console.log('listening on *:' + port);
 });
 
 if (process.env.ENV === 'dev') {
@@ -51,9 +53,8 @@ app.use('/socket.io', function(req, res) {
     console.log('socket connected');
 });
 
+app.use('/', routes.index);
 app.use('/game', routes.game);
-
-app.use('/', routes.root);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
