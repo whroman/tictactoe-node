@@ -44,12 +44,6 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(__dirname));
 
-function exposeDBToRouter(req, res, next) {
-    req.db = db;
-    next();    
-}
-
-app.use(exposeDBToRouter);
 app.use('/socket.io', function(req, res) {
     console.log('socket connected');
 });
