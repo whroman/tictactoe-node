@@ -50,13 +50,19 @@ var CollectionTiles = Backbone.Collection.extend({
         },
         diag: {
             filter: function(model) {
-                var isInDiag = model.get('x') === model.get('y');
-                console.log(isInDiag, model)
+                var isInDiag = false;
+                var x = model.get('x');
+                var y = model.get('y');
+                if (x !== 1 && y !== 1) {
+                    isInDiag = true;
+                } else if (x === y) {
+                    isInDiag = true;
+                }
+
                 return isInDiag;
             },
             win: function(tiles) {
                 var diag = _.filter(tiles, this.filter);
-                console.log(diag, tiles)
                 if (diag.length === 3) return true;
                 return false;
             }
@@ -71,11 +77,9 @@ var CollectionTiles = Backbone.Collection.extend({
             App.Tiles.check.col.val = lastTile.get('x');
             App.Tiles.check.row.val = lastTile.get('y');
 
-            if (App.Tiles.check.col.val  === App.Tiles.check.row.val ) {
-                if (App.Tiles.check.diag.win(playerTiles)) {
-                    lastTile.trigger("win");
-                    return true;   
-                }
+            if (App.Tiles.check.diag.win(playerTiles)) {
+                lastTile.trigger("win");
+                return true;   
             }
 
             if (App.Tiles.check.col.win(playerTiles)) {
