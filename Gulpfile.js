@@ -20,7 +20,12 @@ paths.scss.src = [
 ];
 
 paths.js.src = [
-    paths.js.root + 'main.js'
+    paths.js.root + 'main.js',
+    paths.js.root + 'sockets/index.js',
+    paths.js.root + 'models/ModelTile.js',
+    paths.js.root + 'collections/CollectionTiles.js',
+    paths.js.root + 'views/ViewTile.js',
+    paths.js.root + 'views/ViewBoard.js'
 ];
 
 paths.js.lib = [
