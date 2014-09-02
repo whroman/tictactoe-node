@@ -28,13 +28,14 @@ var http = require('http').Server(app);
 
 var io = require('./sockets')(http, mongoose);
 
-http.listen(3000, function(){
+http.listen(process.env.PORT 3000, function(){
   console.log('listening on *:3000');
 });
 
 if (process.env.ENV === 'dev') {
     gulp.start('dev');
 }
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
