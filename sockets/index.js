@@ -28,15 +28,15 @@ function onRoomJoin(data) {
 
     socket.join(data.id);
 
-    var updateModel = {
+    var createDoc = {
         cb: function(err, doc) {
             if (!err) {
                 console.log('Creation of doc ' + doc.id + ' was successful!')
                 IO.sockets
                     .in(data.id)
-                    .emit('game:load', update.tiles);
+                    .emit('game:load', createDoc.set.tiles);
             } else {
-                console.log('Creation error', doc)
+                logError(err, doc)
             }
         },
         query: {
@@ -44,9 +44,7 @@ function onRoomJoin(data) {
         },
         set: {
             id: data.id,
-            tiles: [
-                {}, {}, {}, {}, {}, {}, {}, {}, {}
-            ]
+            tiles: []
         },
         options: {
             upsert: true
@@ -59,10 +57,10 @@ function onRoomJoin(data) {
             console.log('Creating new doc: ' + data.id);
 
             GameModel.update(
-                updateModel.query,
-                updateModel.set,
-                updateModel.options,
-                updateModel.cb
+                createDoc.query,
+                createDoc.set,
+                createDoc.options,
+                createDoc.cb
             );
 
         } else {
@@ -75,7 +73,13 @@ function onRoomJoin(data) {
     };
 
     var docDoesntExist = function (doc) {
-        return doc.length === 0;
+        var doesntExist = false;
+        if (doc.length === 0) {
+            doesntExist = true;
+        } else if (doc[0].tiles.length != 9){
+            doesntExist = true;
+        }
+        return doesntExist;
     }
 
     GameModel

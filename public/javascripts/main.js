@@ -1,5 +1,11 @@
 var socket = io();
 
+function getGameID() {
+    var pathname = window.location.pathname.split('/');
+    var gameID = pathname[pathname.length - 1];
+    return gameID;
+}
+
 $(function() {
     var Tile = Backbone.Model.extend({
         defaults: function() {
@@ -119,7 +125,7 @@ $(function() {
         saveGame: function() {
             var gameState = {
                 tiles: this.models,
-                id: window.location.pathname
+                id: getGameID()
             };
             socket.emit('game:save', gameState);
         },
@@ -231,7 +237,7 @@ $(function() {
                 $("#message").removeClass("show");
             });
             $(".new-game").on("click", function() {                
-                socket.emit('game:reset', window.location.pathname);
+                socket.emit('game:reset', getGameID());
             });
             return this;
         },
@@ -304,47 +310,39 @@ $(function() {
     var App, Tiles;
 
     var gameInitialState = {
-        id: window.location.pathname,
+        id: getGameID(),
         tiles: []
     };
 
     socket.emit('room:join', gameInitialState);
 
     socket.on('game:saved', function(tiles) {
+        console.log('Game was saved', tiles);
         if (tiles.length === 9) {
-            console.log('game was saved!');
             Tiles.set(tiles);
         }
     });
 
     socket.on('game:load', function(tiles) {
+        Tiles = new AllTiles();
+        App = new BoardView(
+            [],
+            {
+                size : 3
+            }
+        );
+
         if (tiles.length === 9) {
             var sortedTiles = _.sortBy(
                 tiles,
                 'timeStamp'
             );
-            console.log('game was loaded!');
-            Tiles = new AllTiles();
-            App = new BoardView(
-                tiles,
-                {
-                    size : 3
-                }
-            );
-            Tiles.set(sortedTiles);        
-        } else {
-            Tiles = new AllTiles();
-            App = new BoardView(
-                [],
-                {
-                    size : 3
-                }
-            );
+            
+            Tiles.set(sortedTiles);
         }
     });
 
     socket.on('game:reset', function() {
-        console.log('game was reset!');
         $("#overlay-bg").removeClass("show");
         $("#message").removeClass("show");
         Tiles.reset([], {size: 3});
