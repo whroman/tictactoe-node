@@ -1,4 +1,5 @@
 var Sockets = {
+    io: io(),
     onGameSaved: function(tiles) {
         if (tiles.length === 9) {
             App.Tiles.set(tiles);

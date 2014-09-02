@@ -97,7 +97,7 @@ var CollectionTiles = Backbone.Collection.extend({
             tiles: this.models,
             id: getGameID()
         };
-        socket.emit('game:save', gameState);
+        Sockets.io.emit('game:save', gameState);
     },
     getSelectedTiles: function(tile) {
         var query;

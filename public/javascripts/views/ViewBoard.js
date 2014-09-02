@@ -21,7 +21,7 @@ var BoardView = Backbone.View.extend({
             $("#message").removeClass("show");
         });
         $(".new-game").on("click", function() {                
-            socket.emit('game:reset', getGameID());
+            Sockets.io.emit('game:reset', getGameID());
         });
         return this;
     },

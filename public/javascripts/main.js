@@ -1,6 +1,4 @@
-var socket = io();
 var App = {};
-
 
 function getGameID() {
     var pathname = window.location.pathname.split('/');
@@ -16,12 +14,12 @@ $(function() {
         tiles: []
     };
 
-    socket.emit('room:join', gameInitialState);
+    Sockets.io.emit('room:join', gameInitialState);
 
-    socket.on('game:saved', Sockets.onGameSaved);
+    Sockets.io.on('game:saved', Sockets.onGameSaved);
 
-    socket.on('game:load', Sockets.onGameLoad);
+    Sockets.io.on('game:load', Sockets.onGameLoad);
 
-    socket.on('game:reset', Sockets.onGameReset);
+    Sockets.io.on('game:reset', Sockets.onGameReset);
 
 });
