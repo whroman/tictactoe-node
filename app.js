@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
-mongoose.connect('localhost:27017/tictactoe');
+
+
+mongoose.connect(process.env.DB_URI)
 // mongoose.set('debug', true)
 
 var db = mongoose.connection;
@@ -30,7 +32,7 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
-if (app.get('env') === 'development') {
+if (process.env.ENV === 'dev') {
     gulp.start('dev');
 }
 // view engine setup
@@ -63,7 +65,7 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (process.env.ENV === 'dev') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
