@@ -117,7 +117,6 @@ body {
     display: inline-block;
     vertical-align: bottom;
     margin: 0 40px;
-    width: 520px;
 }
 
 .player {
@@ -139,6 +138,15 @@ body {
             border-color: transparent;
             line-height: 2em;
             box-sizing: border-box;
+
+            &:hover {
+                color: $gray-md;
+            }
+
+            &:focus {
+                color: $gray-md;
+                text-decoration: underline;
+            }
         }
     }
 }

@@ -15,9 +15,9 @@ var paths = {
     build: './public/build/'
 };
 
-paths.scss.src = [
-    paths.scss.root + 'main.scss'
-];
+paths.scss.src = [paths.scss.root + 'main.scss'];
+
+paths.scss.watch = [paths.scss.root + '**/*.scss'];
 
 paths.js.src = [
     paths.js.root + 'main.js',
@@ -88,7 +88,7 @@ gulp.task(
 gulp.task('watch', function() {
     gulp.watch(paths.js.src, ['lint-scripts']);    
     gulp.watch(paths.js.src, ['build-scripts']);    
-    gulp.watch(paths.scss.src, ['build-styles']);    
+    gulp.watch(paths.scss.watch, ['build-styles']);    
 });
 
 gulp.task('dev', [
