@@ -3,6 +3,7 @@ var GameModel;
 var onRoomJoin = require('./onRoomJoin');
 var onGameSave = require('./onGameSave');
 var onGameReset = require('./onGameReset');
+var onGamePlayerUpdate = require('./onGamePlayerUpdate');
 
 function init(http, mongoose) {
     IO = require('socket.io')(http);
@@ -26,6 +27,7 @@ function onConnection(socket) {
         .on('room:join', onRoomJoin)
         .on('game:save', onGameSave)
         .on('game:reset', onGameReset)
+        .on('game:playerUpdate', onGamePlayerUpdate)
         .on('disconnect', onDisconnect);
 
 }

@@ -1,6 +1,8 @@
 function createModel(mongoose) {
     var GameSchema = new mongoose.Schema({
         id: String,
+        playerOne: String,
+        playerTwo: String,
         tiles: Array,
         lastModified: {
             type: Number,

@@ -9,7 +9,7 @@ function getGameID() {
 
 $(function() {
     var FormOptions = {
-        dynamicInputWidth: '#info input[type="text"]'
+        input: '#info input[type="text"]'
     };
 
     var gameInitialState = {
@@ -26,5 +26,7 @@ $(function() {
     Sockets.io.on('game:load', Sockets.onGameLoad);
 
     Sockets.io.on('game:reset', Sockets.onGameReset);
+
+    Sockets.io.on('game:playerUpdated', Sockets.onGamePlayerUpdated);
 
 });

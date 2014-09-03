@@ -5,7 +5,12 @@ var Sockets = {
             App.Tiles.set(tiles);
         }
     },
-    onGameLoad: function(tiles) {
+    onGameLoad: function(doc) {
+        var playerObj = {
+            playerOne: doc.playerOne,
+            playerTwo: doc.playerTwo,
+        };
+
         App.Tiles = new CollectionTiles();
         App.Board = new BoardView(
             [],
@@ -14,14 +19,16 @@ var Sockets = {
             }
         );
 
-        if (tiles.length === 9) {
+        if (doc.tiles.length === 9) {
             var sortedTiles = _.sortBy(
-                tiles,
+                doc.tiles,
                 'timeStamp'
             );
             
             App.Tiles.set(sortedTiles);
         }
+
+        App.Forms.loadValues(playerObj);
     },
     onGameReset: function() {
         $("#overlay-bg").removeClass("show");
@@ -29,5 +36,8 @@ var Sockets = {
         App.Tiles.reset([], {size: 3});
         App.Tiles.allowClicks = true;
         App.Tiles.saveGame();
+    },
+    onGamePlayerUpdated: function(playerObj) {
+        App.Forms.loadValues(playerObj);
     }
 };

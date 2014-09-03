@@ -21,7 +21,9 @@ function onRoomJoin(data) {
         },
         set: {
             id: data.id,
-            tiles: []
+            tiles: [],
+            playerOne: 'player one',
+            playerTwo: 'player two',
         },
         options: {
             upsert: true
@@ -45,7 +47,7 @@ function onRoomJoin(data) {
 
             socket.IO.sockets
                 .in(doc[0].id)
-                .emit('game:load', doc[0].tiles);
+                .emit('game:load', doc[0]);
         }
     };
 
