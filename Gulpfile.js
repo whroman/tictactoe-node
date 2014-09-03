@@ -21,6 +21,7 @@ paths.scss.src = [
 
 paths.js.src = [
     paths.js.root + 'main.js',
+    paths.js.root + 'forms.js',
     paths.js.root + 'sockets/index.js',
     paths.js.root + 'models/ModelTile.js',
     paths.js.root + 'collections/CollectionTiles.js',

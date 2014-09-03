@@ -6,16 +6,21 @@ block content
         #board
         .spacer-xs
         #info.text-sm
-            .player.one.left
+            .player.one
                 .tile.faux
-                .name player one
-            .player.two.right
+                .name.text-bold
+                    input(type="text", maxlength="15", size="10", value="player one")
+            .player.two
                 .tile.faux
-                .name player two
+                .name.text-bold
+                    input(type="text", maxlength="15", size="10", value="player two")
+
+            div
+
             .player.new-game
                 .button.tile.faux
                     div !
-                .name new game
+                .name.text-bold new game
     #overlay-bg
     #message
         .title

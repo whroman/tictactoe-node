@@ -6,13 +6,18 @@ function getGameID() {
     return gameID;
 }
 
-$(function() {
 
+$(function() {
+    var FormOptions = {
+        dynamicInputWidth: '#info input[type="text"]'
+    };
 
     var gameInitialState = {
         id: getGameID(),
         tiles: []
     };
+
+    App.Forms.init(FormOptions);
 
     Sockets.io.emit('room:join', gameInitialState);
 
