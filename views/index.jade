@@ -13,21 +13,29 @@ block content
 
         .spacer-sm
 
-        h3.text-sm to play with a friend:
-        div.spacer-sm
-        ul.text-xs
-            li 1. click "play!"
-            div.spacer-sm
-            li 2. copy the URL
-            div.spacer-sm
-            li 3. send it to a friend
-            div.spacer-sm
-            li 4. have fun!
+        a.player.new-game(toggle-on-click="#instr")
+            .button.tile.faux
+                div ?
+            .name how can i play online?
 
-        .spacer-xl
-        .spacer-xl
+        .spacer-sm
+
+        div#instr.hidden
+            ul.text-xs
+                li 1. click "play!"
+                    .spacer-md
+                li 2. copy the URL
+                    .spacer-md
+                li 3. change player names by clicking on text
+                    .spacer-md
+                li 4. send the link to a friend
+                    .spacer-md
+                li 5. have fun!
+                    .spacer-lg
+
 
         a.player.new-game(href="https://github.com/whroman/tictactoe-node")
             .button.tile.faux
                 div /
-            .name source code!
+            - text = "<source code>"
+            .name #{text}

@@ -6,6 +6,20 @@ function getGameID() {
     return gameID;
 }
 
+function toggleOnClick(attrSel) {
+    $('[' + attrSel + ']').on("click", function() {
+        var $this = $(this);
+        var targetSel = $this.attr(attrSel);
+        var $target = $(targetSel);
+        var targetIsHidden = $target.css('display') === 'none';
+        if (targetIsHidden) {
+            $target.show();
+        } else {
+            $target.hide();
+        }
+    });
+}
+
 
 $(function() {
     var FormOptions = {
@@ -17,16 +31,19 @@ $(function() {
         tiles: []
     };
 
+    toggleOnClick('toggle-on-click');
+
     App.Forms.init(FormOptions);
 
-    Sockets.io.emit('room:join', gameInitialState);
+    if ($('#board').length !== 0) {
+        Sockets.io.emit('room:join', gameInitialState);
 
-    Sockets.io.on('game:saved', Sockets.onGameSaved);
+        Sockets.io.on('game:saved', Sockets.onGameSaved);
 
-    Sockets.io.on('game:load', Sockets.onGameLoad);
+        Sockets.io.on('game:load', Sockets.onGameLoad);
 
-    Sockets.io.on('game:reset', Sockets.onGameReset);
+        Sockets.io.on('game:reset', Sockets.onGameReset);
 
-    Sockets.io.on('game:playerUpdated', Sockets.onGamePlayerUpdated);
-
+        Sockets.io.on('game:playerUpdated', Sockets.onGamePlayerUpdated); 
+    }
 });
