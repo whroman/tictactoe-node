@@ -11,7 +11,7 @@ function onRoomJoin(data) {
                 console.log('Creation of doc ' + doc.id + ' was successful!')
                 socket.IO.sockets
                     .in(data.id)
-                    .emit('game:load', createDoc.set.tiles);
+                    .emit('game:load', createDoc.set);
             } else {
                 socket.LogError(err, doc)
             }
