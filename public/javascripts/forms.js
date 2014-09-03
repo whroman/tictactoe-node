@@ -5,26 +5,39 @@ App.Forms = {
                 .add(options.input);
         }
 
-        this.$input
-            .on('keyup', this.dynamicWidth)
-            .on('click', function() {
-                this.select();
-            });
+        this.$input.on({
+            'keyup': App.Forms.eventCB.keyup,
+            'click': App.Forms.eventCB.click,
+            'blur': App.Forms.savePlayer
+        });
+    },
+    eventCB: {
+        keyup: function(ev) {
+            App.Forms.dynamicWidth(ev);
+            App.Forms.savePlayer().bind(this);
+        },
+        click: function(){
+            this.select();
+        }
     },
     $input: $(),
+    savePlayer: function() {
+        var $this = $(this);
+        var key = $this.attr('for');
+        var val = $this.val();
+        var playerObj = {
+            id: getGameID(),
+            key: key,
+            val: val
+        };
+        Sockets.io.emit('game:playerUpdate', playerObj);
+    },
     dynamicWidth: function(ev) {
         var $this = $(this);
-        var val = $this.val();
-        var size = Math.floor(val.length * 1.7);
         if (ev.keyCode === 13) {
-            var playerUpdate = {
-                id: getGameID(),
-                key: $this.attr('for'),
-                val: val
-            };
             $this.blur();
-            Sockets.io.emit('game:playerUpdate', playerUpdate);
         } else {
+            var size = Math.floor(val.length * 1.7);
             $this.attr('size', size);
         }
     },
