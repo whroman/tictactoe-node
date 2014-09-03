@@ -6,7 +6,10 @@ App.Forms = {
         }
 
         this.$input
-            .on('keyup', this.dynamicWidth);
+            .on('keyup', this.dynamicWidth)
+            .on('click', function() {
+                this.select();
+            });
     },
     $input: $(),
     dynamicWidth: function(ev) {
