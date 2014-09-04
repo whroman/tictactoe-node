@@ -13,8 +13,10 @@ App.Forms = {
     },
     eventCB: {
         keyup: function(ev) {
-            App.Forms.dynamicWidth(ev);
-            App.Forms.savePlayer().bind(this);
+            App.Forms.dynamicWidth
+                .bind(this)(ev);
+            App.Forms.savePlayer
+                .bind(this)();
         },
         click: function(){
             this.select();
@@ -37,7 +39,7 @@ App.Forms = {
         if (ev.keyCode === 13) {
             $this.blur();
         } else {
-            var size = Math.floor(val.length * 1.7);
+            var size = Math.floor($this.val().length * 1.7);
             $this.attr('size', size);
         }
     },
