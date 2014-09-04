@@ -14,7 +14,9 @@ function onGamePlayerUpdate(data) {
         id: data.id
     };
 
-    var set = {};
+    var set = {
+        tiles: data.tiles
+    };
     set[data.key] = data.val;
 
     var cb = function(err) {

@@ -55,8 +55,11 @@ function onRoomJoin(data) {
         var doesntExist = false;
         if (doc.length === 0) {
             doesntExist = true;
-        } else if (doc[0].tiles.length != 9){
-            doesntExist = true;
+        } else if (doc[0].tiles) {
+            console.log(doc[0].tiles)
+            if (doc[0].tiles.length != 9) {
+                doesntExist = true;
+            }
         }
         return doesntExist;
     }
