@@ -49,21 +49,34 @@ var CollectionTiles = Backbone.Collection.extend({
             }
         },
         diag: {
-            filter: function(model) {
+            filter1: function(model) {
                 var isInDiag = false;
                 var x = model.get('x');
                 var y = model.get('y');
-                if (x !== 1 && y !== 1) {
+                if (x === y) {
                     isInDiag = true;
-                } else if (x === y) {
+                }
+
+                return isInDiag;
+            },
+            filter2: function(model) {
+                var isInDiag = false;
+                var x = model.get('x');
+                var y = model.get('y');
+                if (x === 0 && y === 2) {
+                    isInDiag = true;
+                } else if (x === 1 && y === 1) {
+                    isInDiag = true;
+                } else if (x === 2 && y === 0) {
                     isInDiag = true;
                 }
 
                 return isInDiag;
             },
             win: function(tiles) {
-                var diag = _.filter(tiles, this.filter);
-                if (diag.length === 3) return true;
+                var diag1 = _.filter(tiles, this.filter1);
+                var diag2 = _.filter(tiles, this.filter2);
+                if (diag1.length === 3 || diag2.length === 3) return true;
                 return false;
             }
         },
