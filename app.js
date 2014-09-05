@@ -9,7 +9,7 @@ var mongo = require('mongodb');
 var mongoose = require('mongoose');
 
 
-mongoose.connect(process.env.DB_URI)
+mongoose.connect(process.env.DB_URI);
 // mongoose.set('debug', true)
 
 var db = mongoose.connection;
@@ -21,7 +21,7 @@ var gulp = require('./Gulpfile.js');
 var routes = {
     index: require('./routes/index'),
     game: require('./routes/game'),
-}
+};
 
 var app = express();
 var http = require('http').Server(app);

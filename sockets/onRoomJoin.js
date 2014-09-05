@@ -8,12 +8,12 @@ function onRoomJoin(data) {
     var createDoc = {
         cb: function(err, doc) {
             if (!err) {
-                console.log('Creation of doc ' + doc.id + ' was successful!')
+                console.log('Creation of doc ' + doc.id + ' was successful!');
                 socket.IO.sockets
                     .in(data.id)
                     .emit('game:load', createDoc.set);
             } else {
-                socket.LogError(err, doc)
+                socket.LogError(err, doc);
             }
         },
         query: {
@@ -56,13 +56,12 @@ function onRoomJoin(data) {
         if (doc.length === 0) {
             doesntExist = true;
         } else if (doc[0].tiles) {
-            console.log(doc[0].tiles)
             if (doc[0].tiles.length != 9) {
                 doesntExist = true;
             }
         }
         return doesntExist;
-    }
+    };
 
     socket.GameModel
         .where('id')
