@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var JSHintStylish = require('jshint-stylish');
 var mapStream = require('map-stream');
 var gp = require('gulp-load-plugins')();
 

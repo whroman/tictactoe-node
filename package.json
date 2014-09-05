@@ -23,7 +23,6 @@
     "gulp-ruby-sass": "^0.7.1",
     "gulp-uglifyjs": "0.4.2",
     "gulp-util": "^3.0.0",
-    "jshint-stylish": "^0.4.0",
     "map-stream": "^0.1.0",
     "mongodb": "^1.4.8",
     "mongoose": "^3.8.15",
