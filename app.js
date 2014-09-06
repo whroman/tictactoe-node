@@ -10,7 +10,10 @@ var mongoose = require('mongoose');
 
 
 mongoose.connect(process.env.DB_URI);
-// mongoose.set('debug', true)
+
+if (process.env.ENV === 'dev') {
+    mongoose.set('debug', true)
+}
 
 var db = mongoose.connection;
 
@@ -21,6 +24,7 @@ var gulp = require('./Gulpfile.js');
 var routes = {
     index: require('./routes/index'),
     game: require('./routes/game'),
+    specRunner: require('./routes/specRunner'),
 };
 
 var app = express();
@@ -55,6 +59,10 @@ app.use('/socket.io', function(req, res) {
 
 app.use('/', routes.index);
 app.use('/game', routes.game);
+
+if (process.env.ENV === 'dev') {
+    app.use('/specRunner', routes.specRunner);
+}
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
