@@ -1,7 +1,7 @@
 var TileView = Backbone.View.extend({
     template: _.template($('#tile-template').html()),
     events: {
-        "click": "tileClick",
+        "click": "onClick",
     },
     initialize: function() {
         this.listenTo(this.model, "change:hasBeenSelected", this.markTile);
@@ -11,15 +11,9 @@ var TileView = Backbone.View.extend({
         return this.template(this.model.toJSON());
     },
     // Update Model
-    tileClick: function() {
-        if (this.model.get("hasBeenSelected") === false &&  App.Tiles.allowClicks === true) {
-            var tile = {
-                selectedBy: App.Tiles.currentPlayer,
-                hasBeenSelected: true
-            };
-            this.model.save(tile);
-            App.Tiles.saveGame();
-        }
+    onClick: function() {
+        this.model.click();
+        return this;
     },
     // Update View
     markTile: function() {
@@ -38,5 +32,6 @@ var TileView = Backbone.View.extend({
                 .removeClass("one");
             App.Board.renderP1Turn();
         }
+        return this;
     },
 });

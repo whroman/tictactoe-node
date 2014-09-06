@@ -13,8 +13,22 @@ var ModelTile = Backbone.Model.extend({
     },
     x : "", 
     y : "",
+    foo: function() {
+        return this;
+    },
     stamp: function() {
         var stamp = (new Date().getTime());
         this.set('timeStamp', stamp);
+    },
+    click: function() {
+        if (this.get("hasBeenSelected") === false &&  App.Tiles.allowClicks === true) {
+            var tile = {
+                selectedBy: App.Tiles.currentPlayer,
+                hasBeenSelected: true
+            };
+            this.save(tile);
+            App.Tiles.saveGame();
+        }
+        return this;
     }
 });
