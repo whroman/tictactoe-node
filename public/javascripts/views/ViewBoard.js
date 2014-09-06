@@ -29,6 +29,7 @@ var BoardView = Backbone.View.extend({
     render: function(tiles, options) {
         this.$el.empty();   
         App.Tiles.boardSize = options.size;
+        App.Tiles.gameWon = false;
 
         if (App.Tiles.length === 0) {
             App.Tiles.newGame(options.size);

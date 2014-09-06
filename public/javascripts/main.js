@@ -35,7 +35,7 @@ $(function() {
 
     App.Forms.init(FormOptions);
 
-    if ($('#board').length !== 0) {
+    if ($('#board').length !== 0 && getGameID() !== "") {
         Sockets.io.emit('room:join', gameInitialState);
 
         Sockets.io.on('game:saved', Sockets.onGameSaved);

@@ -72,6 +72,8 @@ paths.js.server = [
     './routes/**/*.js'
 ];
 
+paths.js.all = paths.js.lib.concat(paths.js.src);
+
 var options = {
     uglify: {
         mangle: false,
@@ -82,8 +84,6 @@ var options = {
         style: 'compressed'
     }
 }
-
-paths.js.all = paths.js.lib.concat(paths.js.src);
 
 gulp.task('build-styles', function(){
     var stream = gulp.src(paths.scss.src)

@@ -11,11 +11,6 @@ var ModelTile = Backbone.Model.extend({
     sync: function() {
         return false;
     },
-    x : "", 
-    y : "",
-    foo: function() {
-        return this;
-    },
     stamp: function() {
         var stamp = (new Date().getTime());
         this.set('timeStamp', stamp);

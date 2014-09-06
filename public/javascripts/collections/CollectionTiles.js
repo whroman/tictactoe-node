@@ -8,6 +8,7 @@ var CollectionTiles = Backbone.Collection.extend({
     currentPlayer: 0,
     boardSize: null,
     allowClicks: true,
+    gameWon: undefined,
     nextId: function() {
         if (!this.length) return 1;
         return this.last().get("id") + 1;
@@ -92,31 +93,36 @@ var CollectionTiles = Backbone.Collection.extend({
 
             if (App.Tiles.check.diag.win(playerTiles)) {
                 lastTile.trigger("win");
-                return true;   
+                App.Tiles.gameWon = true;
+                return;
             }
 
             if (App.Tiles.check.col.win(playerTiles)) {
                 lastTile.trigger("win");
-                return true;   
+                App.Tiles.gameWon = true;
+                return;
             }
 
             if (App.Tiles.check.row.win(playerTiles)) {
                 lastTile.trigger("win");
-                return true;   
+                App.Tiles.gameWon = true;
+                return;
             }
         }
-
-        return false;
+        App.Tiles.gameWon = false;
+        return this;
     },
     endOfGame: function() {
         App.Tiles.allowClicks = false;
     },
     saveGame: function() {
-        var gameState = {
-            tiles: this.models,
-            id: getGameID()
-        };
-        Sockets.io.emit('game:save', gameState);
+        if (getGameID() !== "") {
+            var gameState = {
+                tiles: this.models,
+                id: getGameID()
+            };
+            Sockets.io.emit('game:save', gameState);
+        }
     },
     getSelectedTiles: function(tile) {
         var query;
