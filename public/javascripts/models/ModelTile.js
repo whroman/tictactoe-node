@@ -1,6 +1,6 @@
 var ModelTile = Backbone.Model.extend({
     defaults: function() {
-        var order = App.Tiles.nextId();
+        var order = this.collection.nextId();
         return {
             id: order,
             hasBeenSelected: false,
@@ -16,13 +16,13 @@ var ModelTile = Backbone.Model.extend({
         this.set('timeStamp', stamp);
     },
     click: function() {
-        if (this.get("hasBeenSelected") === false &&  App.Tiles.allowClicks === true) {
+        if (this.get("hasBeenSelected") === false &&  this.collection.allowClicks === true) {
             var tile = {
-                selectedBy: App.Tiles.currentPlayer,
+                selectedBy: this.collection.currentPlayer,
                 hasBeenSelected: true
             };
             this.save(tile);
-            App.Tiles.saveGame();
+            this.collection.saveGame();
         }
         return this;
     }

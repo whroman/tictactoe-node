@@ -24,7 +24,7 @@ var CollectionTiles = Backbone.Collection.extend({
         }
     },
     checkIfEnd: function() {
-        var lastTile = App.Tiles.getLastTile();
+        var lastTile = this.getLastTile();
 
         var tileKey = lastTile.get('x') + '' + lastTile.get('y');
         var player = lastTile.get('selectedBy');
@@ -36,11 +36,11 @@ var CollectionTiles = Backbone.Collection.extend({
             tallyBy = 1;
         }
 
-        App.Tiles.win.update(tileKey, tallyBy);
-        if (App.Tiles.win.gameWon === true) {
+        this.win.update(tileKey, tallyBy);
+        if (this.win.gameWon === true) {
             lastTile.trigger('win');
         } else {
-            if (App.Tiles.getSelectedTiles().length === 9) {
+            if (this.getSelectedTiles().length === 9) {
                 lastTile.trigger('tie');
             }
         }
@@ -48,7 +48,7 @@ var CollectionTiles = Backbone.Collection.extend({
         return this;
     },
     endOfGame: function() {
-        App.Tiles.allowClicks = false;
+        this.allowClicks = false;
     },
     saveGame: function() {
         if (getGameID() !== "") {
@@ -75,7 +75,7 @@ var CollectionTiles = Backbone.Collection.extend({
     },
     getLastTile: function() {
         var lastTile = _.max(
-            App.Tiles.getSelectedTiles(),
+            this.getSelectedTiles(),
             function(tile) {
                 return tile.get("timeStamp");
             }

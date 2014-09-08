@@ -2,7 +2,7 @@ var Sockets = {
     io: io(),
     onGameSaved: function(tiles) {
         if (tiles.length === 9) {
-            App.Tiles.set(tiles);
+            App.Board.collection.set(tiles);
         }
     },
     onGameLoad: function(doc) {
@@ -11,11 +11,12 @@ var Sockets = {
             playerTwo: doc.playerTwo,
         };
 
-        App.Tiles = new CollectionTiles();
+        var collection = new CollectionTiles();
         App.Board = new BoardView(
             [],
             {
-                size : 3
+                size: 3,
+                collection: collection
             }
         );
 
@@ -25,17 +26,24 @@ var Sockets = {
                 'timeStamp'
             );
             
-            App.Tiles.set(sortedTiles);
+            App.Board.collection.set(sortedTiles);
         }
 
         App.Forms.loadValues(playerObj);
     },
     onGameReset: function() {
+        var collection = new CollectionTiles();
         $("#overlay-bg").removeClass("show");
         $("#message").removeClass("show");
-        App.Tiles.reset([], {size: 3});
-        App.Tiles.allowClicks = true;
-        App.Tiles.saveGame();
+        App.Board = new BoardView(
+            [],
+            {
+                size: 3,
+                collection: collection
+            }
+        );
+        App.Board.collection.allowClicks = true;
+        App.Board.collection.saveGame();
     },
     onGamePlayerUpdated: function(playerObj) {
         App.Forms.loadValues(playerObj);

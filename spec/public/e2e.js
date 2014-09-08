@@ -17,6 +17,7 @@ describe("Board View and Tiles Collection", function() {
         diag1:['00','10','11','01','22'],
         diag2:['20','00','11','22','02'],
         check: function(key) {
+            console.log(App.Board.collection.win.tallies)
             var tiles = this[key];
             var tilesLen = tiles.length;
             var i = 0;
@@ -24,31 +25,33 @@ describe("Board View and Tiles Collection", function() {
             for (i; i < tilesLen; i++) {
                 var tileKey = tiles[i];
                 Models[tileKey].click();
+                console.log('Testing ' + key, App.Board.collection.win.tallies);
             }
 
-            expect(App.Tiles.win.gameWon).toEqual(true);
-
+            expect(App.Board.collection.win.gameWon).toEqual(true);
         }
     };
 
     beforeEach(function() {
-        App.Tiles = new CollectionTiles();
+        var collection = new CollectionTiles();
         App.Board = new BoardView(
             [],
             {
-                size : 3
+                size : 3,
+                collection: collection
             }
         );
-        ModelsLen = App.Tiles.models.length;
+        ModelsLen = App.Board.collection.models.length;
         Models = {};
 
         while (ModelsLen--) {
-            var tile = App.Tiles.where({id: (ModelsLen + 1)})[0];
+            var tile = App.Board.collection.where({id: (ModelsLen + 1)})[0];
             var x = tile.get('x');
             var y = tile.get('y');
             var key = '' + x + '' + y;
             Models[key] = tile;
         }
+
     });
 
     it("should recognize a diag1 win", function(){

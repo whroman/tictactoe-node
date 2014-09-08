@@ -1,18 +1,23 @@
 var BoardView = Backbone.View.extend({
     el: $("#board"),
+    collection: undefined,
     $wrapper: $('#board-wrapper'),
     playerOne : $(".player.one .tile"),
     playerTwo : $(".player.two .tile"),
     initialize: function(tiles, options) {
+        this.collection = options.collection;
+        this.collection.win = App.Services.win(options.size);
+
         this
             .setCollectionEvents()
             .setDOMEvents()
             .render(tiles, options);
+
     },
     setCollectionEvents: function() {
-        this.listenTo(App.Tiles, "win", this.win);
-        this.listenTo(App.Tiles, "tie", this.tie);
-        this.listenTo(App.Tiles, "reset", this.render);
+        this.listenTo(this.collection, "win", this.win);
+        this.listenTo(this.collection, "tie", this.tie);
+        this.listenTo(this.collection, "reset", this.render);
 
         return this;
     },
@@ -29,19 +34,21 @@ var BoardView = Backbone.View.extend({
     render: function(tiles, options) {
         this.$el.empty();   
 
-        if (App.Tiles.length === 0) {
-            App.Tiles.newGame(options.size);
+        if (this.collection.length === 0) {
+            this.collection.newGame(options.size);
         }
 
-        if (App.Tiles.currentPlayer === 0) {
+        if (this.collection.currentPlayer === 0) {
             this.renderP1Turn();
         } else {
             this.renderP2Turn();
         }
 
-        App.Tiles.win = App.Services.win(options.size);
-
-        _.each(App.Tiles.models, this.addTile, this);
+        _.each(
+            this.collection.models, 
+            this.addTile, 
+            this
+        );
     },
     renderP1Turn: function() {
         this.$wrapper
@@ -57,6 +64,7 @@ var BoardView = Backbone.View.extend({
         var elString = "#tileX" + tile.get("x") + 'Y' + tile.get("y");
         var newTileView = new TileView({
             model: tile,
+            parent: this
         });
         this.$el.append(newTileView.render());
         newTileView.setElement(elString);
@@ -69,8 +77,8 @@ var BoardView = Backbone.View.extend({
         }
     },
     win: function() {
-        var tile = App.Tiles.getLastTile();
-        App.Tiles.endOfGame();
+        var tile = this.collection.getLastTile();
+        this.collection.endOfGame();
         player = (tile.get("selectedBy") === 0) ? "Green" : "Orange";
         this.displayOverlay(player + " wins!");
     },

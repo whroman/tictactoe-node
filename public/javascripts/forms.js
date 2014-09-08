@@ -29,7 +29,7 @@ App.Forms = {
         var val = $this.val();
         var playerObj = {
             id: getGameID(),
-            tiles: App.Tiles.models,
+            tiles: App.Board.collection.models,
             key: key,
             val: val
         };
