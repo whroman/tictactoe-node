@@ -24,14 +24,10 @@ describe("Board View and Tiles Collection", function() {
             for (i; i < tilesLen; i++) {
                 var tileKey = tiles[i];
                 Models[tileKey].click();
-                if (i === tilesLen - 1) {
-                    expect(App.Tiles.gameWon).toEqual(true);
-                    console.log(App.Tiles.gameWon, 'true')
-                } else {
-                    expect(App.Tiles.gameWon).toEqual(false);
-                    console.log(App.Tiles.gameWon, 'false')
-                }
             }
+
+            expect(App.Tiles.win.gameWon).toEqual(true);
+
         }
     };
 
@@ -50,7 +46,7 @@ describe("Board View and Tiles Collection", function() {
             var tile = App.Tiles.where({id: (ModelsLen + 1)})[0];
             var x = tile.get('x');
             var y = tile.get('y');
-            var key = '' + x + y;
+            var key = '' + x + '' + y;
             Models[key] = tile;
         }
     });

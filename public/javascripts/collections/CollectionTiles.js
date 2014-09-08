@@ -6,9 +6,7 @@ var CollectionTiles = Backbone.Collection.extend({
     comparator: "id",
     numOfClicks: 0,
     currentPlayer: 0,
-    boardSize: null,
     allowClicks: true,
-    gameWon: undefined,
     nextId: function() {
         if (!this.length) return 1;
         return this.last().get("id") + 1;
@@ -24,92 +22,116 @@ var CollectionTiles = Backbone.Collection.extend({
             }
         }
     },
-    check: {
-        col: {
-            val: null,
-            filter: function(model) {
-                var isInCol = model.get('x') === App.Tiles.check.col.val;
-                return isInCol;
-            },
-            win: function(tiles) {
-                var col = _.filter(tiles, this.filter);
-                if (col.length === 3) return true;
-                return false;
-            }
+    win: {
+        tallies: {
+        // '00-10-20-': 0,
+        // '01-11-21-': 0,
+        // '02-12-22-': 0,
+        // '00-01-02-': 0,
+        // '10-11-12-': 0,
+        // '20-21-22-': 0,
+        // '00-11-22-': 0,
+        // '20-11-02-': 0,
         },
-        row: {
-            val: null,
-            filter: function(model) {
-                var isInRow = model.get('y') === App.Tiles.check.row.val;
-                return isInRow;
-            },
-            win: function(tiles) {
-                var row = _.filter(tiles, this.filter);
-                if (row.length === 3) return true;
-                return false;
-            }
-        },
-        diag: {
-            filter1: function(model) {
-                var isInDiag = false;
-                var x = model.get('x');
-                var y = model.get('y');
-                if (x === y) {
-                    isInDiag = true;
-                }
+        gameWon: undefined,
+        update: function(tileKey, tallyBy) {
+            _.each(
+                this.tallies,
+                function(val, key) {
+                    if (key.indexOf(tileKey) !== -1) {
+                        this.tallies[key] += tallyBy;
 
-                return isInDiag;
-            },
-            filter2: function(model) {
-                var isInDiag = false;
-                var x = model.get('x');
-                var y = model.get('y');
-                if (x === 0 && y === 2) {
-                    isInDiag = true;
-                } else if (x === 1 && y === 1) {
-                    isInDiag = true;
-                } else if (x === 2 && y === 0) {
-                    isInDiag = true;
-                }
-
-                return isInDiag;
-            },
-            win: function(tiles) {
-                var diag1 = _.filter(tiles, this.filter1);
-                var diag2 = _.filter(tiles, this.filter2);
-                if (diag1.length === 3 || diag2.length === 3) return true;
-                return false;
-            }
+                        if (this.tallies[key] === 3 || this.tallies[key] === -3) {
+                            this.gameWon = true;
+                        }
+                    }
+                },
+                this
+            );
         },
+        init: function(size) {
+            this.gameWon = false;
+            var hWins = this.getHorizontalWins(size);
+            var vWins = this.getVerticalWins(size);
+            var dWins = this.getDiagonalWins(size);
+
+            _.extend(
+                this.tallies,
+                hWins,
+                vWins,
+                dWins
+            );
+        },
+        getHorizontalWins: function(size) {
+            var wins = {};
+            var y = 0;
+            var x;
+            var key;
+            for (y; y < size; y++) {
+                key = '';
+                for (x = 0; x < size; x++) {
+                    key += x + '' + y + '-';
+                }
+                wins[key] = 0;
+            }
+            return wins;
+        },
+        getVerticalWins: function(size) {
+            var wins = {};
+            var x = 0;
+            var y;
+            var key;
+            for (x; x < size; x++) {
+                key = '';
+                for (y = 0; y < size; y++) {
+                    key += x + '' + y + '-';
+                }
+                wins[key] = 0;
+            }
+            return wins;
+        },
+        getDiagonalWins: function(size) {
+            var wins = {};
+            var ii;
+            var key = '';
+
+            for (ii = 0; ii < size; ii++) {
+                key += (ii + '' + ii + '-');
+            }
+            wins[key] = 0;
+
+            key = ''
+            for (ii = 0; ii < size; ii++) {
+                var jj = size - 1 - ii;
+                key += (ii + '' + jj + '-');
+            }
+            wins[key] = 0;
+
+            return wins;
+        }
     },
-    checkIfWin: function() {
+    checkIfEnd: function() {
         var lastTile = App.Tiles.getLastTile();
-        var playerTiles;
 
-        if (lastTile) {
-            playerTiles = App.Tiles.getSelectedTiles(lastTile);
-            App.Tiles.check.col.val = lastTile.get('x');
-            App.Tiles.check.row.val = lastTile.get('y');
+        var tileKey = lastTile.get('x') + '' + lastTile.get('y');
+        var player = lastTile.get('selectedBy');
+        var tallyBy; 
 
-            if (App.Tiles.check.diag.win(playerTiles)) {
-                lastTile.trigger("win");
-                App.Tiles.gameWon = true;
-                return;
-            }
+        if (player === 0) {
+            tallyBy = -1;
+        } else if (player === 1) {
+            tallyBy = 1;
+        }
 
-            if (App.Tiles.check.col.win(playerTiles)) {
-                lastTile.trigger("win");
-                App.Tiles.gameWon = true;
-                return;
-            }
-
-            if (App.Tiles.check.row.win(playerTiles)) {
-                lastTile.trigger("win");
-                App.Tiles.gameWon = true;
-                return;
+        App.Tiles.win.update(tileKey, tallyBy);
+        if (App.Tiles.win.gameWon === true) {
+            lastTile.trigger('win');
+        } else {
+            if (App.Tiles.getSelectedTiles().length === 9) {
+                lastTile.trigger('tie');
             }
         }
-        App.Tiles.gameWon = false;
+
         return this;
     },
     endOfGame: function() {

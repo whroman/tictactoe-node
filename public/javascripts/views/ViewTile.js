@@ -5,7 +5,7 @@ var TileView = Backbone.View.extend({
     },
     initialize: function() {
         this.listenTo(this.model, "change:hasBeenSelected", this.markTile);
-        this.listenTo(this.model, "change:hasBeenSelected", App.Tiles.checkIfWin);
+        this.listenTo(this.model, "change:hasBeenSelected", App.Tiles.checkIfEnd);
     },
     render: function() {
         return this.template(this.model.toJSON());

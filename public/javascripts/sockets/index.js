@@ -28,8 +28,6 @@ var Sockets = {
             App.Tiles.set(sortedTiles);
         }
 
-        console.log(App.Tiles);
-
         App.Forms.loadValues(playerObj);
     },
     onGameReset: function() {
