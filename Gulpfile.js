@@ -54,7 +54,8 @@ paths.js.src = [
     paths.js.root + 'models/ModelTile.js',
     paths.js.root + 'collections/CollectionTiles.js',
     paths.js.root + 'views/ViewTile.js',
-    paths.js.root + 'views/ViewBoard.js'
+    paths.js.root + 'views/ViewBoard.js',
+    paths.js.root + 'services/win.js'
 ];
 
 paths.js.lib = [

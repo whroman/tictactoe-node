@@ -1,4 +1,8 @@
-var App = {};
+var App = {
+    Services: {},
+    Tiles: {},
+    Board: {}
+};
 
 function getGameID() {
     var pathname = window.location.pathname.split('/');

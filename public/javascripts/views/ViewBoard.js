@@ -39,7 +39,7 @@ var BoardView = Backbone.View.extend({
             this.renderP2Turn();
         }
 
-        App.Tiles.win.init(options.size);
+        App.Tiles.win = App.Services.win(options.size);
 
         _.each(App.Tiles.models, this.addTile, this);
     },
