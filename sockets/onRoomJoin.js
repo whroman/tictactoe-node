@@ -63,13 +63,14 @@ function onRoomJoin(data) {
         return doesntExist;
     };
 
-    socket.GameModel
+    var promise = socket.GameModel
         .where('id')
         .equals(data.id)
         .limit(1)
-        .exec()
-        .addCallback(getModelCB)
-        .addErrback(socket.LogError);
+        .exec();
+
+    promise
+        .then(getModelCB, socket.LogError);
 
     return socket;
 }
