@@ -6,9 +6,6 @@ var TileView = Backbone.View.extend({
     initialize: function(options) {
         this.parent = options.parent;
         this.listenTo(this.model, "change:hasBeenSelected", this.markTile);
-        this.listenTo(this.model, "change:hasBeenSelected", function() {
-            this.model.collection.checkIfEnd();
-        });
     },
     render: function() {
         return this.template(this.model.toJSON());
@@ -20,6 +17,7 @@ var TileView = Backbone.View.extend({
     },
     // Update View
     markTile: function() {
+        console.log(this.model);
         var player = this.model.get('selectedBy');
         this.model.stamp();
         var nextPlayer = player === 0 ? 1 : 0;
@@ -35,6 +33,9 @@ var TileView = Backbone.View.extend({
                 .removeClass("one");
             this.parent.renderP1Turn();
         }
+
+        this.model.collection.checkIfEnd();
+
         return this;
     },
 });

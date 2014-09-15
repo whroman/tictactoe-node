@@ -16,6 +16,8 @@ var ModelTile = Backbone.Model.extend({
         this.set('timeStamp', stamp);
     },
     click: function() {
+        console.log(this);
+
         if (this.get("hasBeenSelected") === false &&  this.collection.allowClicks === true) {
             var tile = {
                 selectedBy: this.collection.currentPlayer,
