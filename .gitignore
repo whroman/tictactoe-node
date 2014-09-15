@@ -1,2 +1,4 @@
 .sass-cache/
 .env
+public/build/build.css.map
+public/build/build.js.map
